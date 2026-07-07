@@ -15,3 +15,9 @@ src/build
 dist
 tests/test_runner
 tests/test_runner.exe
+bench/bmin/bench
+bench/bmin/bench.exe
+bench/std/bench
+bench/std/bench.exe
+bench/bmin/*.o
+bench/std/*.o

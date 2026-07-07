@@ -89,15 +89,35 @@ template but do not emit duplicate object code.
 header) when you want it compiled only into `libbmin.a` and shared across many
 translation units — same idea as extending the library's pre-built set.
 
-## Compile-time benchmark (migrated app)
+## Compile-time benchmark
 
-1. Baseline: `make clean && time make -jN` with `std` containers
-2. Swap types and link `-lbmin`; remove unused std includes
-3. Add instantiations for every `(T, K, V)` your app uses
-4. Measure again with the same compiler, flags, and hardware
+`bench/` contains two equivalent sample apps (6 translation units each):
 
-Optional: `clang -ftime-trace` or `g++ -ftime-report` on a heavy translation
-unit to compare template instantiation cost.
+| Program | Containers | Link |
+|---------|------------|------|
+| `bench/bmin` | `bmin::String`, `DynArray`, `Map`, `UniquePtr` | `libbmin.a` |
+| `bench/std` | `std::string`, `vector`, `unordered_map`, `unique_ptr` | libc++ only |
+
+Both use `-std=c++20 -O0` so compile time dominates.
+
+```bash
+cd bench
+make all          # time a clean compile + run for both
+make time-bmin    # bmin only
+make time-std     # std only
+```
+
+Windows (MSYS2):
+
+```bash
+C:/msys64/msys2_shell.cmd -defterm -here -no-start -ucrt64 -use-full-path -c "cd /c/progs/bmin/bench && make all"
+```
+
+Compare the `wall` times printed for each side. For per-file detail:
+
+```bash
+g++ -ftime-report -c worker3.cpp   # in bench/bmin or bench/std
+```
 
 ## Phase 2 (not in v1)
 
