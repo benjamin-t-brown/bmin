@@ -1,0 +1,17 @@
+bmin/
+.cache
+*.o
+*.d
+*.a
+*.exe
+*.log
+compile_commands.json
+*.data
+*.wasm
+node_modules
+localFile.txt
+src/build
+.source_ok
+dist
+tests/test_runner
+tests/test_runner.exe

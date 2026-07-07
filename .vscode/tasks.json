@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "make",
+      "args": ["-j8"],
+      "group": "build",
+      "problemMatcher": "$gcc",
+      "options": {
+        "cwd": "${workspaceFolder}\\src"
+      }
+    },
+    {
+      "label": "test",
+      "type": "shell",
+      "command": "make",
+      "args": ["test"],
+      "group": "test",
+      "problemMatcher": "$gcc",
+      "options": {
+        "cwd": "${workspaceFolder}\\src"
+      }
+    }
+  ]
+}
