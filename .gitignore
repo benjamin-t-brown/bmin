@@ -1,4 +1,4 @@
-bmin/
+/bmin/
 .cache
 *.o
 *.d
