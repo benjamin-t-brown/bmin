@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdio.h>
+#include <stdio.h>  // IWYU pragma: keep
 
 inline int& testFailures() {
   static int n = 0;

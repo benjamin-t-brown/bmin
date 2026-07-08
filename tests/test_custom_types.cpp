@@ -1,8 +1,8 @@
-#include "TestHarness.h"
+#include "TestHarness.h"  // IWYU pragma: keep
 
-#include "DynArray.h"
-#include "Map.h"
-#include "UniquePtr.h"
+#include "DynArray.h"  // IWYU pragma: keep
+#include "Map.h"  // IWYU pragma: keep
+#include "UniquePtr.h"  // IWYU pragma: keep
 
 struct Point {
   int x;

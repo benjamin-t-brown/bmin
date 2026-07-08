@@ -2,8 +2,8 @@
 
 #include "DynArray.h"
 #include "Hash.h"
+#include "List.h"
 #include "String.h"
-#include "internal/List.h"
 
 namespace bmin {
 
@@ -18,7 +18,7 @@ public:
   class Iterator;
 
 private:
-  using BucketList = internal::List<Entry>;
+  using BucketList = List<Entry>;
 
   DynArray<BucketList> buckets_;
   size_t size_ = 0;

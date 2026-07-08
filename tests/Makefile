@@ -12,7 +12,10 @@ TEST_SRCS = \
   test_map.cpp \
   test_uniqueptr.cpp \
   test_stringinterop.cpp \
-  test_custom_types.cpp
+  test_custom_types.cpp \
+  test_queue.cpp \
+  test_list.cpp \
+  test_stringstream.cpp
 
 OBJECTS = $(TEST_SRCS:.cpp=.o)
 

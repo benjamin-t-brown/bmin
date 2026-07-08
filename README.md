@@ -59,14 +59,18 @@ tests or quick experiments.
 | std | bmin |
 |-----|------|
 | `std::string` | `bmin::String` |
+| `std::to_string(x)` | `bmin::to_string(x)` |
 | `std::vector<T>` | `bmin::DynArray<T>` |
 | `std::unordered_map<K,V>` | `bmin::Map<K,V>` |
 | `std::unique_ptr<T>` | `bmin::UniquePtr<T>` |
+| `std::list<T>` | `bmin::List<T>` |
+| `std::queue<T>` | `bmin::Queue<T>` |
+| `std::ostringstream` | `bmin::StringStream` |
 | `std::string_view` (optional) | `bmin::StringInterop.h` |
 
 ## Templates and compile time
 
-`DynArray.h` and `Map.h` include their `.hpp` implementation at the bottom
+`DynArray.h`, `Map.h`, `List.h`, and `Queue.h` include their `.hpp` implementation at the bottom
 (like `std::vector`), so any `DynArray<T>` / `Map<K,V>` works from a normal
 `#include` — no extra instantiation file in your app.
 
@@ -118,8 +122,3 @@ Compare the `wall` times printed for each side. For per-file detail:
 ```bash
 g++ -ftime-report -c worker3.cpp   # in bench/bmin or bench/std
 ```
-
-## Phase 2 (not in v1)
-
-`Queue`, `StringStream`, and public `List` are deferred until a migration
-needs them.

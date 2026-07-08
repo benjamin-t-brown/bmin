@@ -5,3 +5,9 @@ CompileFlags:
     - --gcc-toolchain=C:/msys64/ucrt64
     - -Isrc/lib
     - -Isrc
+---
+# Negative compile tests: must fail when built via check_compile_fail.sh
+If:
+  PathMatch: tests/compile_fail/.*\.cpp
+Diagnostics:
+  Suppress: '*'

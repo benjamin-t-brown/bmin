@@ -142,5 +142,9 @@
     "--compile-commands-dir=${workspaceFolder}",
     "--query-driver=C:/msys64/ucrt64/bin/g++.exe"
   ],
-  "clangd.checkUpdates": false
+  "clangd.checkUpdates": false,
+  "files.exclude": {
+    "**/*.o": true,
+    "**/*.exe": true
+  }
 }

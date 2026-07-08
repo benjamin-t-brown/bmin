@@ -1,3 +1,3 @@
-#include "internal/List.h"
+#include "List.h"
 
-// List is header-only; this TU anchors the internal module in libbmin.a.
+// List is header-only; this TU anchors List instantiations in libbmin.a.

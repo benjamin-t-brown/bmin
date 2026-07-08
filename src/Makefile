@@ -1,5 +1,6 @@
 CODE=\
 lib/String.cpp\
+lib/StringStream.cpp\
 lib/StringInterop.cpp\
 lib/Instantiations.cpp\
 lib/internal/List.cpp\

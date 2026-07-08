@@ -1,6 +1,6 @@
-#include "TestHarness.h"
+#include "TestHarness.h"  // IWYU pragma: keep
 
-#include "All.h"
+#include "All.h"  // IWYU pragma: keep
 
 SUITE(test_dynarray) {
   bmin::DynArray<int> a;

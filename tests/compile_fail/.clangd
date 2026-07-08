@@ -1,0 +1,3 @@
+# Intentionally-invalid sources for check_compile_fail.sh
+Diagnostics:
+  Suppress: '*'
