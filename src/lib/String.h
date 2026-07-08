@@ -2,7 +2,7 @@
 
 #include <string_view>
 
-#include "internal/Types.h"  // IWYU pragma: keep
+#include "./internal/Types.h"  // IWYU pragma: keep
 
 namespace bmin {
 

@@ -2,7 +2,7 @@
 
 #include "DynArray.h"
 
-#include "internal/Types.h"  // IWYU pragma: keep
+#include "./internal/Types.h"  // IWYU pragma: keep
 
 namespace bmin {
 
@@ -44,4 +44,4 @@ extern template class Queue<String>;
 
 }  // namespace bmin
 
-#include "internal/Queue.hpp"  // IWYU pragma: keep
+#include "./internal/Queue.hpp"  // IWYU pragma: keep

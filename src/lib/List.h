@@ -2,7 +2,7 @@
 
 #include "String.h"
 
-#include "internal/Types.h"  // IWYU pragma: keep
+#include "./internal/Types.h"  // IWYU pragma: keep
 
 namespace bmin {
 
@@ -72,4 +72,4 @@ extern template class List<String>;
 
 }  // namespace bmin
 
-#include "internal/List.hpp"  // IWYU pragma: keep
+#include "./internal/List.hpp"  // IWYU pragma: keep

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "internal/Policy.h"
-#include "internal/Utility.h"
+#include "./internal/Policy.h"
+#include "./internal/Utility.h"
 
 namespace bmin {
 

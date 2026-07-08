@@ -2,7 +2,7 @@
 
 #include "String.h"
 
-#include "internal/Types.h" // IWYU pragma: keep
+#include "./internal/Types.h" // IWYU pragma: keep
 
 namespace bmin {
 
@@ -88,4 +88,4 @@ extern template class DynArray<const char*>;
 
 }  // namespace bmin
 
-#include "internal/DynArray.hpp"  // IWYU pragma: keep
+#include "./internal/DynArray.hpp"  // IWYU pragma: keep

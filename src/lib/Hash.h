@@ -2,7 +2,7 @@
 
 #include "String.h"
 
-#include "internal/Types.h"
+#include "./internal/Types.h"
 
 namespace bmin {
 

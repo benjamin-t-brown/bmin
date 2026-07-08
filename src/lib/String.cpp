@@ -1,8 +1,8 @@
 #include "String.h"
 
 #include "DynArray.h"
-#include "internal/Policy.h"
-#include "internal/Utility.h"
+#include "./internal/Policy.h"
+#include "./internal/Utility.h"
 
 #include <stdarg.h>
 #include <stdio.h>

@@ -4,9 +4,9 @@
 // file can be parsed alone (clangd); #pragma once breaks the cycle.
 #include "../Queue.h"  // IWYU pragma: keep
 
-#include "Policy.h"
-#include "Storage.h"
-#include "Utility.h"
+#include "./Policy.h"
+#include "./Storage.h"
+#include "./Utility.h"
 
 namespace bmin {
 

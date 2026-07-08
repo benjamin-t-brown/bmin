@@ -2,8 +2,8 @@
 
 #include "../List.h"
 
-#include "Policy.h"
-#include "Utility.h"
+#include "./Policy.h"
+#include "./Utility.h"
 
 namespace bmin {
 

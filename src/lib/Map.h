@@ -99,7 +99,7 @@ extern template class Map<String, String>;
 
 }  // namespace bmin
 
-#include "internal/Map.hpp"  // IWYU pragma: keep
+#include "./internal/Map.hpp"  // IWYU pragma: keep
 
 /*
  * Iterator invalidation:
