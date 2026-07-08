@@ -115,7 +115,10 @@ public:
   DynArray<String> split(const String& sep) const;
 
   static String fromInt(int value);
-  bool parseInt(int& out) const;
+  int parseInt() const;
+  double parseDouble() const;
+  bool isInt() const;
+  bool isDouble() const;
 
   String& operator+=(const char* s) {
     return append(s);

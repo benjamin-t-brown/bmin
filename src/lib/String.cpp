@@ -6,6 +6,11 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
+
+#include <cerrno>
+#include <cfloat>
+#include <climits>
 
 namespace bmin {
 
@@ -67,6 +72,41 @@ String stringFromFormat(const char* fmt, ...) {
     return out;
   }
   return String(buf);
+}
+
+bool parseIntValue(const char* start, int& out) {
+  if (*start == '\0') {
+    return false;
+  }
+
+  errno = 0;
+  char* end = nullptr;
+  const long value = strtol(start, &end, 10);
+  if (errno == ERANGE || end == start || *end != '\0') {
+    return false;
+  }
+  if (value < INT_MIN || value > INT_MAX) {
+    return false;
+  }
+
+  out = static_cast<int>(value);
+  return true;
+}
+
+bool parseDoubleValue(const char* start, double& out) {
+  if (*start == '\0') {
+    return false;
+  }
+
+  errno = 0;
+  char* end = nullptr;
+  const double value = strtod(start, &end);
+  if (errno == ERANGE || end == start || *end != '\0') {
+    return false;
+  }
+
+  out = value;
+  return true;
 }
 
 } // namespace
@@ -517,43 +557,30 @@ String String::fromInt(int value) {
   return String(buf);
 }
 
-bool String::parseInt(int& out) const {
-  const char* p = cStr();
-  if (*p == '\0') {
-    return false;
+int String::parseInt() const {
+  int out = 0;
+  if (!parseIntValue(cStr(), out)) {
+    return INT_MAX;
   }
+  return out;
+}
 
-  bool negative = false;
-  if (*p == '+') {
-    ++p;
-  } else if (*p == '-') {
-    negative = true;
-    ++p;
+double String::parseDouble() const {
+  double out = 0.0;
+  if (!parseDoubleValue(cStr(), out)) {
+    return DBL_MAX;
   }
+  return out;
+}
 
-  if (*p == '\0') {
-    return false;
-  }
+bool String::isInt() const {
+  int out = 0;
+  return parseIntValue(cStr(), out);
+}
 
-  long long value = 0;
-  while (*p != '\0') {
-    if (*p < '0' || *p > '9') {
-      return false;
-    }
-    value = value * 10 + (*p - '0');
-    ++p;
-  }
-
-  if (negative) {
-    value = -value;
-  }
-
-  if (value < -2147483648LL || value > 2147483647LL) {
-    return false;
-  }
-
-  out = static_cast<int>(value);
-  return true;
+bool String::isDouble() const {
+  double out = 0.0;
+  return parseDoubleValue(cStr(), out);
 }
 
 bool operator==(const String& a, const String& b) { return a.compare(b) == 0; }
