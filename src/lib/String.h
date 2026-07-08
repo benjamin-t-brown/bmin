@@ -115,10 +115,6 @@ public:
   DynArray<String> split(const String& sep) const;
 
   static String fromInt(int value);
-  int parseInt() const;
-  double parseDouble() const;
-  bool isInt() const;
-  bool isDouble() const;
 
   String& operator+=(const char* s) {
     return append(s);
@@ -181,5 +177,10 @@ String toString(unsigned long long value);
 String toString(float value);
 String toString(double value);
 String toString(long double value);
+
+int parseInt(const String& s);
+double parseDouble(const String& s);
+bool isInt(const String& s);
+bool isDouble(const String& s);
 
 }  // namespace bmin

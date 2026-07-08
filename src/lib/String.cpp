@@ -557,30 +557,30 @@ String String::fromInt(int value) {
   return String(buf);
 }
 
-int String::parseInt() const {
+int parseInt(const String& s) {
   int out = 0;
-  if (!parseIntValue(cStr(), out)) {
+  if (!parseIntValue(s.cStr(), out)) {
     return INT_MAX;
   }
   return out;
 }
 
-double String::parseDouble() const {
+double parseDouble(const String& s) {
   double out = 0.0;
-  if (!parseDoubleValue(cStr(), out)) {
+  if (!parseDoubleValue(s.cStr(), out)) {
     return DBL_MAX;
   }
   return out;
 }
 
-bool String::isInt() const {
+bool isInt(const String& s) {
   int out = 0;
-  return parseIntValue(cStr(), out);
+  return parseIntValue(s.cStr(), out);
 }
 
-bool String::isDouble() const {
+bool isDouble(const String& s) {
   double out = 0.0;
-  return parseDoubleValue(cStr(), out);
+  return parseDoubleValue(s.cStr(), out);
 }
 
 bool operator==(const String& a, const String& b) { return a.compare(b) == 0; }
