@@ -48,8 +48,9 @@ template <>
 struct Hash<const char*> {
   size_t operator()(const char* s) const {
     size_t h = 2166136261u;
-    if (!s)
+    if (!s) {
       return h;
+    }
     while (*s) {
       h ^= static_cast<unsigned char>(*s++);
       h *= 16777619u;

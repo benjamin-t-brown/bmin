@@ -18,13 +18,13 @@ endif
 DEBUG=true
 ifeq ($(TARGET),wasm)
     INCLUDES= -I. -Ilib
-    FLAGS = -Wall -std=c++20 -Oz -flto
+    FLAGS = -Wall -std=c++23 -Oz -flto
     LIBS =
     CXX = em++
     AR = emar
 else
     INCLUDES += -I. -Ilib
-    FLAGS += -Wall -std=c++20
+    FLAGS += -Wall -std=c++23
     AR ?= ar
     ifeq ($(OS),Windows_NT)
         LIBS += -mconsole -lmingw32

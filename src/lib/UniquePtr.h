@@ -9,15 +9,15 @@ class String;
 
 template <typename T>
 class UniquePtr {
-  T* ptr_ = nullptr;
+  T* _ptr = nullptr;
 
 public:
   UniquePtr() = default;
 
-  explicit UniquePtr(T* p) : ptr_(p) {}
+  explicit UniquePtr(T* p) : _ptr(p) {}
 
-  UniquePtr(UniquePtr&& o) noexcept : ptr_(o.ptr_) {
-    o.ptr_ = nullptr;
+  UniquePtr(UniquePtr&& o) noexcept : _ptr(o._ptr) {
+    o._ptr = nullptr;
   }
 
   UniquePtr& operator=(UniquePtr&& o) noexcept {
@@ -33,33 +33,34 @@ public:
   }
 
   T* get() const {
-    return ptr_;
+    return _ptr;
   }
 
   T* release() {
-    T* p = ptr_;
-    ptr_ = nullptr;
+    T* p = _ptr;
+    _ptr = nullptr;
     return p;
   }
 
   void reset(T* p = nullptr) {
-    if (ptr_)
-      delete ptr_;
-    ptr_ = p;
+    if (_ptr) {
+      delete _ptr;
+    }
+    _ptr = p;
   }
 
   T& operator*() const {
-    BMIN_ASSERT(ptr_);
-    return *ptr_;
+    BMIN_ASSERT(_ptr);
+    return *_ptr;
   }
 
   T* operator->() const {
-    BMIN_ASSERT(ptr_);
-    return ptr_;
+    BMIN_ASSERT(_ptr);
+    return _ptr;
   }
 
   explicit operator bool() const {
-    return ptr_ != nullptr;
+    return _ptr != nullptr;
   }
 };
 

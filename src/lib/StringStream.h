@@ -5,13 +5,13 @@
 namespace bmin {
 
 class StringStream {
-  String buf_;
+  String _buf;
 
 public:
   void clear();
 
   String str() const {
-    return buf_;
+    return _buf;
   }
 
   StringStream& operator<<(const char* s);

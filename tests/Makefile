@@ -19,7 +19,7 @@ TEST_SRCS = \
 
 OBJECTS = $(TEST_SRCS:.cpp=.o)
 
-FLAGS = -Wall -std=c++20 -g
+FLAGS = -Wall -std=c++23 -g
 INCLUDES = -I$(BMIN_OUTPUT)/include -I.
 LIBS = -L$(BMIN_OUTPUT)/lib -lbmin
 

@@ -1,35 +1,8 @@
 {
   "cSpell.words": [
-    "BLENDMODE",
     "BMIN",
-    "Dropzone",
-    "emshelpers",
-    "interactables",
-    "JOYAXISMOTION",
-    "JOYBUTTONDOWN",
-    "JOYBUTTONUP",
-    "keysym",
-    "libhtml",
-    "MOUSEBUTTONDOWN",
-    "MOUSEBUTTONUP",
-    "MOUSEMOTION",
-    "MOUSEWHEEL",
-    "NOLINT",
-    "NOLINTNEXTLINE",
-    "onresize",
-    "PIXELFORMAT",
-    "PRESENTVSYNC",
-    "remv",
-    "TARGETTEXTURE",
-    "TEXTUREACCESS",
-    "WINDOWEVENT"
   ],
   "files.associations": {
-    "*.js": "javascript",
-    "*.jsx": "javascriptreact",
-    "*.ts": "typescript",
-    "*.tsx": "typescriptreact",
-    "*.graphqls": "graphql",
     "cctype": "cpp",
     "clocale": "cpp",
     "cmath": "cpp",
@@ -136,12 +109,7 @@
     "SDL_*": true
   },
   "C_Cpp.intelliSenseEngine": "disabled",
-  "clangd.path": "C:/msys64/ucrt64/bin/clangd.exe",
-  "clangd.arguments": [
-    "--background-index",
-    "--compile-commands-dir=${workspaceFolder}",
-    "--query-driver=C:/msys64/ucrt64/bin/g++.exe"
-  ],
+  "clangd.path": "clangd",
   "clangd.checkUpdates": false,
   "files.exclude": {
     "**/*.o": true,

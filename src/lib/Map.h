@@ -20,10 +20,10 @@ public:
 private:
   using BucketList = List<Entry>;
 
-  DynArray<BucketList> buckets_;
-  size_t size_ = 0;
-  H hasher_{};
-  E equal_{};
+  DynArray<BucketList> _buckets;
+  size_t _size = 0;
+  H _hasher{};
+  E _equal{};
 
   size_t bucketIndex(const K& key) const;
   Iterator findIterator(const K& key);
@@ -37,11 +37,11 @@ public:
   ~Map() = default;
 
   size_t size() const {
-    return size_;
+    return _size;
   }
 
   bool empty() const {
-    return size_ == 0;
+    return _size == 0;
   }
 
   Iterator begin();
@@ -59,34 +59,34 @@ public:
 
 template <typename K, typename V, typename H, typename E>
 class Map<K, V, H, E>::Iterator {
-  Map* map_ = nullptr;
-  size_t bucket_ = 0;
-  typename BucketList::Iterator inner_{};
+  Map* _map = nullptr;
+  size_t _bucket = 0;
+  typename BucketList::Iterator _inner{};
 
   void advancePastEmpty();
 
   Iterator(Map* m, size_t b, typename BucketList::Iterator it)
-      : map_(m), bucket_(b), inner_(it) {}
+      : _map(m), _bucket(b), _inner(it) {}
 
   friend class Map;
 
 public:
   Entry& operator*() const {
-    return *inner_;
+    return *_inner;
   }
 
   Entry* operator->() const {
-    return &*inner_;
+    return &*_inner;
   }
 
   Iterator& operator++() {
-    ++inner_;
+    ++_inner;
     advancePastEmpty();
     return *this;
   }
 
   bool operator==(const Iterator& o) const {
-    return map_ == o.map_ && bucket_ == o.bucket_ && inner_ == o.inner_;
+    return _map == o._map && _bucket == o._bucket && _inner == o._inner;
   }
 
   bool operator!=(const Iterator& o) const {

@@ -1,6 +1,6 @@
 # bmin
 
-A minimal C++20 container library intended to replace common `std` usage
+A minimal C++23 container library intended to replace common `std` usage
 (`string`, `vector`, `unordered_map`, `unique_ptr`) with simpler
 implementations and faster compile times via `extern template` +
 pre-instantiation in `libbmin.a`.
@@ -59,7 +59,7 @@ tests or quick experiments.
 | std | bmin |
 |-----|------|
 | `std::string` | `bmin::String` |
-| `std::to_string(x)` | `bmin::to_string(x)` |
+| `std::to_string(x)` | `bmin::toString(x)` |
 | `std::vector<T>` | `bmin::DynArray<T>` |
 | `std::unordered_map<K,V>` | `bmin::Map<K,V>` |
 | `std::unique_ptr<T>` | `bmin::UniquePtr<T>` |
@@ -102,7 +102,7 @@ translation units — same idea as extending the library's pre-built set.
 | `bench/bmin` | `bmin::String`, `DynArray`, `Map`, `UniquePtr` | `libbmin.a` |
 | `bench/std` | `std::string`, `vector`, `unordered_map`, `unique_ptr` | libc++ only |
 
-Both use `-std=c++20 -O0` so compile time dominates.
+Both use `-std=c++23 -O0` so compile time dominates.
 
 ```bash
 cd bench

@@ -8,17 +8,23 @@
 void* operator new(size_t bytes);
 void operator delete(void* p) noexcept;
 
+#if defined(__has_include) && __has_include(<new>)
+#include <new>
+#else
 inline void* operator new(size_t, void* p) noexcept { return p; }
+#endif
 
 namespace bmin {
 namespace storage {
 
 inline void* allocateRaw(size_t bytes) {
-  if (bytes == 0)
+  if (bytes == 0) {
     return nullptr;
+  }
   void* p = ::operator new(bytes);
-  if (!p)
+  if (!p) {
     fatal();
+  }
   return p;
 }
 

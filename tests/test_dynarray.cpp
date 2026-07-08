@@ -4,14 +4,14 @@
 
 SUITE(test_dynarray) {
   bmin::DynArray<int> a;
-  a.push_back(1);
-  a.push_back(2);
-  a.push_back(3);
+  a.pushBack(1);
+  a.pushBack(2);
+  a.pushBack(3);
   CHECK_EQ(a.size(), 3u);
   CHECK_EQ(a[0], 1);
   CHECK_EQ(a.at(2), 3);
 
-  a.pop_back();
+  a.popBack();
   CHECK_EQ(a.size(), 2u);
 
   bmin::DynArray<int> b(a);

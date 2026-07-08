@@ -12,19 +12,49 @@ SUITE(test_string) {
   bmin::String tail = a.slice(6);
   CHECK_EQ(tail, "world");
 
+  CHECK_EQ(a.slice(), "hello world");
+  CHECK_EQ(a.sliceView(), "hello world");
+  CHECK_EQ(a.slice(-5), "world");
+  CHECK_EQ(a.sliceView(-5), "world");
+  CHECK_EQ(a.slice(0, -1), "hello worl");
+  CHECK_EQ(a.sliceView(0, -1), "hello worl");
+
+  CHECK_EQ(a.sliceView(6, 11), "world");
+  CHECK_EQ(a.sliceView(6), "world");
+  CHECK(a.sliceView(100, 200).empty());
+
   bmin::String empty = a.slice(100, 200);
   CHECK(empty.empty());
 
-  bmin::String parts[3] = {bmin::String("a"), bmin::String("b"),
-                             bmin::String("c")};
-  bmin::String joined = bmin::String::join("-", parts, 3);
+  bmin::DynArray<bmin::String> parts;
+  parts.pushBack(bmin::String("a"));
+  parts.pushBack(bmin::String("b"));
+  parts.pushBack(bmin::String("c"));
+  bmin::String joined = bmin::String::join("-", parts);
   CHECK_EQ(joined, "a-b-c");
 
   bmin::DynArray<bmin::String> arr;
-  arr.push_back(bmin::String("x"));
-  arr.push_back(bmin::String("y"));
+  arr.pushBack(bmin::String("x"));
+  arr.pushBack(bmin::String("y"));
   bmin::String joined2 = bmin::String::join(",", arr);
   CHECK_EQ(joined2, "x,y");
+
+  bmin::DynArray<bmin::String> split1 = bmin::String("a-b-c").split("-");
+  CHECK_EQ(split1.size(), 3u);
+  CHECK_EQ(split1[0], "a");
+  CHECK_EQ(split1[1], "b");
+  CHECK_EQ(split1[2], "c");
+  CHECK_EQ(bmin::String::join("-", split1), "a-b-c");
+
+  bmin::DynArray<bmin::String> split2 = bmin::String("a--b").split("-");
+  CHECK_EQ(split2.size(), 3u);
+  CHECK_EQ(split2[0], "a");
+  CHECK_EQ(split2[1], "");
+  CHECK_EQ(split2[2], "b");
+
+  bmin::DynArray<bmin::String> split3 = bmin::String("").split(",");
+  CHECK_EQ(split3.size(), 1u);
+  CHECK(split3[0].empty());
 
   bmin::String moved = bmin::move(a);
   CHECK(moved.size() > 0);
@@ -59,10 +89,10 @@ SUITE(test_string) {
   CHECK(!bmin::String("12a3").parseInt(n));
   CHECK(!bmin::String("").parseInt(n));
 
-  CHECK_EQ(bmin::to_string(42), "42");
-  CHECK_EQ(bmin::to_string(-7), "-7");
-  CHECK_EQ(bmin::to_string(1000000000u), "1000000000");
-  CHECK_EQ(bmin::to_string(2.5), "2.500000");
+  CHECK_EQ(bmin::toString(42), "42");
+  CHECK_EQ(bmin::toString(-7), "-7");
+  CHECK_EQ(bmin::toString(1000000000u), "1000000000");
+  CHECK_EQ(bmin::toString(2.5), "2.500000");
 
   bmin::String fromLen("hello", 3);
   CHECK_EQ(fromLen, "hel");
@@ -87,7 +117,7 @@ SUITE(test_string) {
   CHECK_EQ(s, "ok");
 
   s = bmin::String("hello");
-  s.push_back('!');
+  s.pushBack('!');
   CHECK_EQ(s, "hello!");
   CHECK_EQ(s + '!', "hello!!");
   CHECK_EQ('!' + s, "!hello!");
@@ -111,9 +141,9 @@ SUITE(test_string) {
   CHECK_EQ(hay.find("two"), 4u);
   CHECK_EQ(hay.find("four"), bmin::String::npos);
   CHECK(hay.contains("three"));
-  CHECK(hay.starts_with("one"));
-  CHECK(hay.ends_with("three"));
-  CHECK(!hay.starts_with("two"));
+  CHECK(hay.startsWith("one"));
+  CHECK(hay.endsWith("three"));
+  CHECK(!hay.startsWith("two"));
 
   CHECK(bmin::String("abc") < bmin::String("abd"));
   CHECK(bmin::String("abc") < "abd");
@@ -124,6 +154,6 @@ SUITE(test_string) {
   s = bmin::String("padding");
   s.reserve(64);
   CHECK(s.capacity() >= 64u);
-  s.shrink_to_fit();
+  s.shrinkToFit();
   CHECK_EQ(s.capacity(), s.size());
 }

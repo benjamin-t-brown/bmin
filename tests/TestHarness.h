@@ -8,8 +8,9 @@ inline int& testFailures() {
 }
 
 inline void check(bool ok, const char* expr, const char* file, int line) {
-  if (!ok)
+  if (!ok) {
     fprintf(stderr, "  FAIL %s:%d: %s\n", file, line, expr);
+  }
   testFailures() += !ok;
 }
 

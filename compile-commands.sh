@@ -1,28 +1,56 @@
 #!/bin/bash
+set -euo pipefail
 
 cd "$(dirname "$0")"
 
-export CC=/ucrt64/bin/gcc.exe
-export CXX=/ucrt64/bin/g++.exe
-COMPILER="C:/msys64/ucrt64/bin/g++.exe"
+SRC_DIR="$(cd src && pwd)"
 
-compiledb make -C src all
-mv -f src/compile_commands.json compile_commands.json 2>/dev/null || true
+if [[ -z "${CXX:-}" ]]; then
+	if [[ -x /ucrt64/bin/g++.exe ]]; then
+		CXX=/ucrt64/bin/g++.exe
+	else
+		CXX="$(command -v g++)"
+	fi
+fi
 
-python - <<'PY'
+COMPILER="$CXX"
+if command -v cygpath >/dev/null 2>&1; then
+	COMPILER="$(cygpath -m "$CXX")"
+else
+	COMPILER="${COMPILER//\\//}"
+fi
+
+TMP="$(mktemp)"
+trap 'rm -f "$TMP"' EXIT
+
+make -C src -n all TARGET=native 2>/dev/null |
+	grep -E ' -c .+ -o ' >"$TMP" || true
+
+python - "$SRC_DIR" "$COMPILER" "$TMP" <<'PY'
 import json
+import sys
 from pathlib import Path
 
-compiler = "C:/msys64/ucrt64/bin/g++.exe"
-path = Path("compile_commands.json")
-db = json.loads(path.read_text(encoding="utf-8"))
-
-for entry in db:
-    args = entry.get("arguments", [])
-    if not args or not args[0].replace("\\", "/").endswith("g++.exe"):
-        entry["arguments"] = [compiler] + args
-
+src_dir, compiler, lines_path = sys.argv[1:4]
 src_root = Path("src")
+db = []
+
+for line in Path(lines_path).read_text(encoding="utf-8").splitlines():
+    parts = line.split()
+    if "-c" not in parts:
+        continue
+    c_idx = parts.index("-c")
+    source = parts[c_idx + 1].replace("\\", "/")
+    args = list(parts)
+    if args[0].replace("\\", "/").endswith(("g++", "g++.exe", "c++", "clang++")):
+        args[0] = compiler
+    else:
+        args.insert(0, compiler)
+    db.append({
+        "directory": src_dir.replace("\\", "/"),
+        "arguments": args,
+        "file": source,
+    })
 
 
 def header_entry(template, header_rel):
@@ -43,7 +71,6 @@ def header_entry(template, header_rel):
     }
 
 
-# Mirror .cpp compile commands for sibling headers.
 extra = []
 known = {e["file"].replace("\\", "/") for e in db}
 for entry in db:
@@ -60,7 +87,6 @@ for entry in db:
         extra.append(header_entry(entry, header))
         known.add(rel)
 
-# Headers without a matching .cpp (e.g. Map.h, DynArray.hpp).
 template = next(e for e in db if e["file"].endswith("Instantiations.cpp"))
 for pattern in ("lib/*.h", "lib/*.hpp", "lib/internal/*.h"):
     for header in sorted(src_root.glob(pattern)):
@@ -71,5 +97,10 @@ for pattern in ("lib/*.h", "lib/*.hpp", "lib/internal/*.h"):
         known.add(rel)
 
 db.extend(extra)
-path.write_text(json.dumps(db, indent=1) + "\n", encoding="utf-8")
+Path("compile_commands.json").write_text(
+    json.dumps(db, indent=1) + "\n",
+    encoding="utf-8",
+)
 PY
+
+echo "Wrote compile_commands.json ($(python -c "import json; print(len(json.load(open('compile_commands.json'))))") entries)"

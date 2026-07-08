@@ -8,10 +8,10 @@ namespace bmin {
 
 template <typename T>
 class Queue {
-  DynArray<T> buf_;
-  size_t head_ = 0;
-  size_t tail_ = 0;
-  size_t count_ = 0;
+  DynArray<T> _buf;
+  size_t _head = 0;
+  size_t _tail = 0;
+  size_t _count = 0;
 
   void grow();
 
@@ -29,11 +29,11 @@ public:
   const T& front() const;
 
   bool empty() const {
-    return count_ == 0;
+    return _count == 0;
   }
 
   size_t size() const {
-    return count_;
+    return _count;
   }
 
   void clear();

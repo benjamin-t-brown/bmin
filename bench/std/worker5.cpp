@@ -7,8 +7,9 @@
 namespace {
 
 std::string join(const std::string& sep, const std::vector<std::string>& parts) {
-  if (parts.empty())
+  if (parts.empty()) {
     return {};
+  }
   std::string out = parts[0];
   for (size_t i = 1; i < parts.size(); ++i) {
     out.append(sep);

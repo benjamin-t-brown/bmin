@@ -16,16 +16,20 @@ struct List<T>::Node {
 
 template <typename T>
 void List<T>::unlink(Node* node) {
-  if (node->prev)
+  if (node->prev) {
     node->prev->next = node->next;
-  else
-    head_ = node->next;
-  if (node->next)
+  }
+  else {
+    _head = node->next;
+  }
+  if (node->next) {
     node->next->prev = node->prev;
-  else
-    tail_ = node->prev;
+  }
+  else {
+    _tail = node->prev;
+  }
   delete node;
-  --size_;
+  --_size;
 }
 
 template <typename T>
@@ -33,16 +37,17 @@ List<T>::List() = default;
 
 template <typename T>
 List<T>::List(const List& o) : List() {
-  for (const T& v : o)
-    push_back(v);
+  for (const T& v : o) {
+    pushBack(v);
+  }
 }
 
 template <typename T>
 List<T>::List(List&& o) noexcept
-    : head_(o.head_), tail_(o.tail_), size_(o.size_) {
-  o.head_ = nullptr;
-  o.tail_ = nullptr;
-  o.size_ = 0;
+    : _head(o._head), _tail(o._tail), _size(o._size) {
+  o._head = nullptr;
+  o._tail = nullptr;
+  o._size = 0;
 }
 
 template <typename T>
@@ -52,15 +57,15 @@ List<T>::~List() {
 
 template <typename T>
 List<T>& List<T>::operator=(List o) {
-  bmin::swap(head_, o.head_);
-  bmin::swap(tail_, o.tail_);
-  bmin::swap(size_, o.size_);
+  bmin::swap(_head, o._head);
+  bmin::swap(_tail, o._tail);
+  bmin::swap(_size, o._size);
   return *this;
 }
 
 template <typename T>
 typename List<T>::Iterator List<T>::begin() const {
-  return Iterator(head_);
+  return Iterator(_head);
 }
 
 template <typename T>
@@ -70,91 +75,101 @@ typename List<T>::Iterator List<T>::end() const {
 
 template <typename T>
 void List<T>::clear() {
-  while (head_)
-    unlink(head_);
+  while (_head) {
+    unlink(_head);
+  }
 }
 
 template <typename T>
-void List<T>::push_back(const T& value) {
-  Node* n = new Node{value, tail_, nullptr};
-  if (tail_)
-    tail_->next = n;
-  else
-    head_ = n;
-  tail_ = n;
-  ++size_;
+void List<T>::pushBack(const T& value) {
+  Node* n = new Node{value, _tail, nullptr};
+  if (_tail) {
+    _tail->next = n;
+  }
+  else {
+    _head = n;
+  }
+  _tail = n;
+  ++_size;
 }
 
 template <typename T>
-void List<T>::push_back(T&& value) {
-  Node* n = new Node{bmin::move(value), tail_, nullptr};
-  if (tail_)
-    tail_->next = n;
-  else
-    head_ = n;
-  tail_ = n;
-  ++size_;
+void List<T>::pushBack(T&& value) {
+  Node* n = new Node{bmin::move(value), _tail, nullptr};
+  if (_tail) {
+    _tail->next = n;
+  }
+  else {
+    _head = n;
+  }
+  _tail = n;
+  ++_size;
 }
 
 template <typename T>
-void List<T>::push_front(const T& value) {
-  Node* n = new Node{value, nullptr, head_};
-  if (head_)
-    head_->prev = n;
-  else
-    tail_ = n;
-  head_ = n;
-  ++size_;
+void List<T>::pushFront(const T& value) {
+  Node* n = new Node{value, nullptr, _head};
+  if (_head) {
+    _head->prev = n;
+  }
+  else {
+    _tail = n;
+  }
+  _head = n;
+  ++_size;
 }
 
 template <typename T>
-void List<T>::push_front(T&& value) {
-  Node* n = new Node{bmin::move(value), nullptr, head_};
-  if (head_)
-    head_->prev = n;
-  else
-    tail_ = n;
-  head_ = n;
-  ++size_;
+void List<T>::pushFront(T&& value) {
+  Node* n = new Node{bmin::move(value), nullptr, _head};
+  if (_head) {
+    _head->prev = n;
+  }
+  else {
+    _tail = n;
+  }
+  _head = n;
+  ++_size;
 }
 
 template <typename T>
-void List<T>::pop_back() {
-  BMIN_ASSERT(tail_);
-  unlink(tail_);
+void List<T>::popBack() {
+  BMIN_ASSERT(_tail);
+  unlink(_tail);
 }
 
 template <typename T>
-void List<T>::pop_front() {
-  BMIN_ASSERT(head_);
-  unlink(head_);
+void List<T>::popFront() {
+  BMIN_ASSERT(_head);
+  unlink(_head);
 }
 
 template <typename T>
 typename List<T>::Iterator List<T>::erase(Iterator it) {
-  Node* next = it.node_ ? it.node_->next : nullptr;
-  if (it.node_)
-    unlink(it.node_);
+  Node* next = it._node ? it._node->next : nullptr;
+  if (it._node) {
+    unlink(it._node);
+  }
   return Iterator(next);
 }
 
 template <typename T>
-List<T>::Iterator::Iterator(Node* n) : node_(n) {}
+List<T>::Iterator::Iterator(Node* n) : _node(n) {}
 
 template <typename T>
 T& List<T>::Iterator::operator*() const {
-  return node_->value;
+  return _node->value;
 }
 
 template <typename T>
 typename List<T>::Iterator& List<T>::Iterator::operator++() {
-  node_ = node_->next;
+  _node = _node->next;
   return *this;
 }
 
 template <typename T>
 bool List<T>::Iterator::operator==(Iterator o) const {
-  return node_ == o.node_;
+  return _node == o._node;
 }
 
 template <typename T>

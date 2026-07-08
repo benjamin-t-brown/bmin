@@ -10,9 +10,9 @@ template <typename T>
 class List {
   struct Node;
 
-  Node* head_ = nullptr;
-  Node* tail_ = nullptr;
-  size_t size_ = 0;
+  Node* _head = nullptr;
+  Node* _tail = nullptr;
+  size_t _size = 0;
 
   void unlink(Node* node);
 
@@ -26,11 +26,11 @@ public:
   ~List();
 
   size_t size() const {
-    return size_;
+    return _size;
   }
 
   bool empty() const {
-    return size_ == 0;
+    return _size == 0;
   }
 
   Iterator begin() const;
@@ -38,20 +38,20 @@ public:
 
   void clear();
 
-  void push_back(const T& value);
-  void push_back(T&& value);
-  void push_front(const T& value);
-  void push_front(T&& value);
+  void pushBack(const T& value);
+  void pushBack(T&& value);
+  void pushFront(const T& value);
+  void pushFront(T&& value);
 
-  void pop_back();
-  void pop_front();
+  void popBack();
+  void popFront();
 
   Iterator erase(Iterator it);
 };
 
 template <typename T>
 class List<T>::Iterator {
-  Node* node_ = nullptr;
+  Node* _node = nullptr;
 
   explicit Iterator(Node* n);
 

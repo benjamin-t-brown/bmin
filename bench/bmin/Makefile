@@ -1,5 +1,5 @@
 CXX ?= g++
-CXXFLAGS = -Wall -std=c++20 -O0 -g
+CXXFLAGS = -Wall -std=c++23 -O0 -g
 BMIN_DIR = ../../bmin
 INCLUDES = -I$(BMIN_DIR)/include
 LIBS = -L$(BMIN_DIR)/lib -lbmin

@@ -8,9 +8,9 @@ namespace bmin {
 
 template <typename T>
 class DynArray {
-  T* data_ = nullptr;
-  size_t size_ = 0;
-  size_t capacity_ = 0;
+  T* _data = nullptr;
+  size_t _size = 0;
+  size_t _capacity = 0;
 
   void reallocate(size_t newCap);
 
@@ -24,61 +24,61 @@ public:
   DynArray& operator=(DynArray o);
 
   size_t size() const {
-    return size_;
+    return _size;
   }
 
   size_t capacity() const {
-    return capacity_;
+    return _capacity;
   }
 
   bool empty() const {
-    return size_ == 0;
+    return _size == 0;
   }
 
   T* data() {
-    return data_;
+    return _data;
   }
 
   const T* data() const {
-    return data_;
+    return _data;
   }
 
   void reserve(size_t n);
   void clear();
 
-  void push_back(const T& value);
-  void push_back(T&& value);
+  void pushBack(const T& value);
+  void pushBack(T&& value);
 
   template <typename... Args>
-  void emplace_back(Args&&... args);
+  void emplaceBack(Args&&... args);
 
-  void pop_back();
+  void popBack();
 
   T& operator[](size_t i) {
-    return data_[i];
+    return _data[i];
   }
 
   const T& operator[](size_t i) const {
-    return data_[i];
+    return _data[i];
   }
 
   T& at(size_t i);
   const T& at(size_t i) const;
 
   T* begin() {
-    return data_;
+    return _data;
   }
 
   T* end() {
-    return data_ + size_;
+    return _data + _size;
   }
 
   const T* begin() const {
-    return data_;
+    return _data;
   }
 
   const T* end() const {
-    return data_ + size_;
+    return _data + _size;
   }
 };
 

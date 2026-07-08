@@ -19,8 +19,9 @@ SUITE(test_queue) {
   q.pop();
   CHECK(q.empty());
 
-  for (int i = 0; i < 20; ++i)
+  for (int i = 0; i < 20; ++i) {
     q.push(i);
+  }
   CHECK_EQ(q.size(), 20u);
   CHECK_EQ(q.front(), 0);
 

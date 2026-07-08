@@ -5,36 +5,38 @@
 namespace bmin {
 
 void StringStream::clear() {
-  buf_.clear();
+  _buf.clear();
 }
 
 StringStream& StringStream::operator<<(const char* s) {
-  if (s)
-    buf_.append(s);
+  if (s) {
+    _buf.append(s);
+  }
   return *this;
 }
 
 StringStream& StringStream::operator<<(const String& s) {
-  buf_.append(s);
+  _buf.append(s);
   return *this;
 }
 
 StringStream& StringStream::operator<<(int value) {
-  buf_.append(String::fromInt(value));
+  _buf.append(String::fromInt(value));
   return *this;
 }
 
 StringStream& StringStream::operator<<(unsigned int value) {
   char digits[32];
   int len = snprintf(digits, sizeof(digits), "%u", value);
-  if (len > 0)
-    buf_.append(digits, static_cast<size_t>(len));
+  if (len > 0) {
+    _buf.append(digits, static_cast<size_t>(len));
+  }
   return *this;
 }
 
 StringStream& StringStream::operator<<(size_t value) {
   if (value == 0) {
-    buf_.append("0");
+    _buf.append("0");
     return *this;
   }
 
@@ -51,28 +53,30 @@ StringStream& StringStream::operator<<(size_t value) {
     digits[r] = tmp;
   }
 
-  buf_.append(digits, i);
+  _buf.append(digits, i);
   return *this;
 }
 
 StringStream& StringStream::operator<<(float value) {
   char digits[64];
   int len = snprintf(digits, sizeof(digits), "%g", value);
-  if (len > 0)
-    buf_.append(digits, static_cast<size_t>(len));
+  if (len > 0) {
+    _buf.append(digits, static_cast<size_t>(len));
+  }
   return *this;
 }
 
 StringStream& StringStream::operator<<(double value) {
   char digits[64];
   int len = snprintf(digits, sizeof(digits), "%g", value);
-  if (len > 0)
-    buf_.append(digits, static_cast<size_t>(len));
+  if (len > 0) {
+    _buf.append(digits, static_cast<size_t>(len));
+  }
   return *this;
 }
 
 StringStream& StringStream::operator<<(bool value) {
-  buf_.append(value ? "true" : "false");
+  _buf.append(value ? "true" : "false");
   return *this;
 }
 

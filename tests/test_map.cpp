@@ -27,11 +27,13 @@ SUITE(test_map) {
   CHECK(m.contains(bmin::String("two")));
   CHECK_EQ(m.size(), 2u);
 
-  for (int i = 0; i < 20; ++i)
+  for (int i = 0; i < 20; ++i) {
     m.insert(keyFor(i), i);
+  }
 
-  for (int i = 0; i < 20; ++i)
+  for (int i = 0; i < 20; ++i) {
     CHECK_EQ(m.find(keyFor(i))->value, i);
+  }
 
   CHECK(m.erase(bmin::String("one")));
   CHECK(!m.contains(bmin::String("one")));

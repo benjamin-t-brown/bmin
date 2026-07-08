@@ -23,8 +23,8 @@ struct Widget {
 
 SUITE(test_custom_types) {
   bmin::DynArray<Point> points;
-  points.push_back(Point{1, 2});
-  points.push_back(Point{3, 4});
+  points.pushBack(Point{1, 2});
+  points.pushBack(Point{3, 4});
   CHECK_EQ(points.size(), 2u);
   CHECK_EQ(points[1].x, 3);
 
@@ -38,8 +38,8 @@ SUITE(test_custom_types) {
   CHECK_EQ(w->id, 7);
 
   bmin::DynArray<bmin::UniquePtr<Widget>> widgets;
-  widgets.push_back(bmin::makeUnique<Widget>(Widget{1}));
-  widgets.push_back(bmin::makeUnique<Widget>(Widget{2}));
+  widgets.pushBack(bmin::makeUnique<Widget>(Widget{1}));
+  widgets.pushBack(bmin::makeUnique<Widget>(Widget{2}));
   CHECK_EQ(widgets.size(), 2u);
   CHECK_EQ(widgets[0]->id, 1);
 

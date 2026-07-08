@@ -12,78 +12,82 @@ namespace bmin {
 
 template <typename T>
 void Queue<T>::grow() {
-  size_t cap = buf_.capacity();
+  size_t cap = _buf.capacity();
   size_t newCap = cap ? cap * 2 : 4;
   DynArray<T> fresh;
   fresh.reserve(newCap);
-  for (size_t i = 0; i < count_; ++i) {
-    size_t idx = cap ? (head_ + i) % cap : 0;
-    fresh.push_back(bmin::move(buf_[idx]));
-    storage::destroyAt(&buf_[idx]);
+  for (size_t i = 0; i < _count; ++i) {
+    size_t idx = cap ? (_head + i) % cap : 0;
+    fresh.pushBack(bmin::move(_buf[idx]));
+    storage::destroyAt(&_buf[idx]);
   }
-  buf_ = bmin::move(fresh);
-  head_ = 0;
-  tail_ = count_;
+  _buf = bmin::move(fresh);
+  _head = 0;
+  _tail = _count;
 }
 
 template <typename T>
 void Queue<T>::push(const T& value) {
-  if (count_ == buf_.capacity())
+  if (_count == _buf.capacity()) {
     grow();
-  size_t cap = buf_.capacity();
-  storage::constructAt(&buf_[tail_], value);
-  tail_ = (tail_ + 1) % cap;
-  ++count_;
+  }
+  size_t cap = _buf.capacity();
+  storage::constructAt(&_buf[_tail], value);
+  _tail = (_tail + 1) % cap;
+  ++_count;
 }
 
 template <typename T>
 void Queue<T>::push(T&& value) {
-  if (count_ == buf_.capacity())
+  if (_count == _buf.capacity()) {
     grow();
-  size_t cap = buf_.capacity();
-  storage::constructAt(&buf_[tail_], bmin::move(value));
-  tail_ = (tail_ + 1) % cap;
-  ++count_;
+  }
+  size_t cap = _buf.capacity();
+  storage::constructAt(&_buf[_tail], bmin::move(value));
+  _tail = (_tail + 1) % cap;
+  ++_count;
 }
 
 template <typename T>
 template <typename... Args>
 void Queue<T>::emplace(Args&&... args) {
-  if (count_ == buf_.capacity())
+  if (_count == _buf.capacity()) {
     grow();
-  size_t cap = buf_.capacity();
-  storage::constructAt(&buf_[tail_], bmin::forward<Args>(args)...);
-  tail_ = (tail_ + 1) % cap;
-  ++count_;
+  }
+  size_t cap = _buf.capacity();
+  storage::constructAt(&_buf[_tail], bmin::forward<Args>(args)...);
+  _tail = (_tail + 1) % cap;
+  ++_count;
 }
 
 template <typename T>
 void Queue<T>::pop() {
-  BMIN_ASSERT(count_ > 0);
-  size_t cap = buf_.capacity();
-  storage::destroyAt(&buf_[head_]);
-  head_ = (head_ + 1) % cap;
-  --count_;
+  BMIN_ASSERT(_count > 0);
+  size_t cap = _buf.capacity();
+  storage::destroyAt(&_buf[_head]);
+  _head = (_head + 1) % cap;
+  --_count;
 }
 
 template <typename T>
 T& Queue<T>::front() {
-  BMIN_ASSERT(count_ > 0);
-  return buf_[head_];
+  BMIN_ASSERT(_count > 0);
+  return _buf[_head];
 }
 
 template <typename T>
 const T& Queue<T>::front() const {
-  BMIN_ASSERT(count_ > 0);
-  return buf_[head_];
+  BMIN_ASSERT(_count > 0);
+  return _buf[_head];
 }
 
 template <typename T>
 void Queue<T>::clear() {
-  while (count_ > 0)
+  while (_count > 0) {
     pop();
-  head_ = 0;
-  tail_ = 0;
+  }
+  _head = 0;
+  _tail = 0;
 }
 
 }  // namespace bmin
