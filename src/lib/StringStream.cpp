@@ -80,4 +80,20 @@ StringStream& StringStream::operator<<(bool value) {
   return *this;
 }
 
+StringStream& StringStream::operator<<(std::string_view value) {
+  if (!value.empty()) {
+    _buf.append(value.data(), value.size());
+  }
+  return *this;
+}
+
+StringStream& StringStream::operator<<(const void* value) {
+  char digits[32];
+  const int len = snprintf(digits, sizeof(digits), "%p", value);
+  if (len > 0) {
+    _buf.append(digits, static_cast<size_t>(len));
+  }
+  return *this;
+}
+
 }  // namespace bmin

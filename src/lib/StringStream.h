@@ -2,6 +2,8 @@
 
 #include "String.h"
 
+#include <string_view>
+
 namespace bmin {
 
 class StringStream {
@@ -22,6 +24,8 @@ public:
   StringStream& operator<<(float value);
   StringStream& operator<<(double value);
   StringStream& operator<<(bool value);
+  StringStream& operator<<(std::string_view value);
+  StringStream& operator<<(const void* value);
 };
 
 }  // namespace bmin
