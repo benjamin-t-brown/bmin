@@ -44,8 +44,8 @@ Map<K, V, H, E>::Map(Map&& o) noexcept
 
 template <typename K, typename V, typename H, typename E>
 Map<K, V, H, E>& Map<K, V, H, E>::operator=(Map o) {
-  swap(_buckets, o._buckets);
-  swap(_size, o._size);
+  detail::swap(_buckets, o._buckets);
+  detail::swap(_size, o._size);
   return *this;
 }
 

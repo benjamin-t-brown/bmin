@@ -66,9 +66,9 @@ DynArray<T>::~DynArray() {
 
 template <typename T>
 DynArray<T>& DynArray<T>::operator=(DynArray o) {
-  bmin::swap(_data, o._data);
-  bmin::swap(_size, o._size);
-  bmin::swap(_capacity, o._capacity);
+  bmin::detail::swap(_data, o._data);
+  bmin::detail::swap(_size, o._size);
+  bmin::detail::swap(_capacity, o._capacity);
   return *this;
 }
 

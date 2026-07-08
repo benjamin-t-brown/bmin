@@ -12,12 +12,16 @@ constexpr T&& forward(T& t) noexcept {
   return static_cast<T&&>(t);
 }
 
+namespace detail {
+
 template <typename T>
 void swap(T& a, T& b) noexcept {
   T tmp = move(a);
   a = move(b);
   b = move(tmp);
 }
+
+}  // namespace detail
 
 template <typename T, typename U = T>
 T exchange(T& obj, U&& newValue) {

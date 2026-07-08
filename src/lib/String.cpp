@@ -131,9 +131,9 @@ String::String(String&& o) noexcept
 String::~String() { delete[] _data; }
 
 String& String::operator=(String o) {
-  bmin::swap(_data, o._data);
-  bmin::swap(_size, o._size);
-  bmin::swap(_capacity, o._capacity);
+  bmin::detail::swap(_data, o._data);
+  bmin::detail::swap(_size, o._size);
+  bmin::detail::swap(_capacity, o._capacity);
   return *this;
 }
 

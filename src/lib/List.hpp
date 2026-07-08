@@ -57,9 +57,9 @@ List<T>::~List() {
 
 template <typename T>
 List<T>& List<T>::operator=(List o) {
-  bmin::swap(_head, o._head);
-  bmin::swap(_tail, o._tail);
-  bmin::swap(_size, o._size);
+  bmin::detail::swap(_head, o._head);
+  bmin::detail::swap(_tail, o._tail);
+  bmin::detail::swap(_size, o._size);
   return *this;
 }
 

@@ -17,13 +17,14 @@ endif
 
 DEBUG=true
 ifeq ($(TARGET),wasm)
-    INCLUDES= -I. -Ilib
+    # -iquote lib: quoted includes only. -Ilib on Windows shadows <string.h> via lib/String.h.
+    INCLUDES= -I. -iquote lib
     FLAGS = -Wall -std=c++23 -Oz -flto
     LIBS =
     CXX = em++
     AR = emar
 else
-    INCLUDES += -I. -Ilib
+    INCLUDES += -I. -iquote lib
     FLAGS += -Wall -std=c++23
     AR ?= ar
     ifeq ($(OS),Windows_NT)
