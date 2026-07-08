@@ -44,4 +44,4 @@ extern template class Queue<String>;
 
 }  // namespace bmin
 
-#include "Queue.hpp"  // IWYU pragma: keep
+#include "internal/Queue.hpp"  // IWYU pragma: keep

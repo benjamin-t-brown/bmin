@@ -17,14 +17,13 @@ endif
 
 DEBUG=true
 ifeq ($(TARGET),wasm)
-    # -iquote lib: quoted includes only. -Ilib on Windows shadows <string.h> via lib/String.h.
-    INCLUDES= -I. -iquote lib
+    INCLUDES= -I.
     FLAGS = -Wall -std=c++23 -Oz -flto
     LIBS =
     CXX = em++
     AR = emar
 else
-    INCLUDES += -I. -iquote lib
+    INCLUDES += -I.
     FLAGS += -Wall -std=c++23
     AR ?= ar
     ifeq ($(OS),Windows_NT)
@@ -87,9 +86,9 @@ dist: $(LIB_BMIN)
 	@cp $(LIB_BMIN) $(INSTALL_DIR)/lib
 	@echo "Copying header files from $(HEADER_SRC_DIR) to $(INSTALL_DIR)/include"
 	cp -f $(HEADER_SRC_DIR)/*.h $(INSTALL_DIR)/include
-	cp -f $(HEADER_SRC_DIR)/*.hpp $(INSTALL_DIR)/include
 	@mkdir -p $(INSTALL_DIR)/include/internal
 	cp -f $(HEADER_SRC_DIR)/internal/*.h $(INSTALL_DIR)/include/internal
+	cp -f $(HEADER_SRC_DIR)/internal/*.hpp $(INSTALL_DIR)/include/internal
 	@echo "Created $(TARGET) bmin folder at top level directory."
 
 -include $(DEPENDS)

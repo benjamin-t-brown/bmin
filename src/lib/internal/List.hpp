@@ -1,9 +1,9 @@
 #pragma once
 
-#include "List.h"
+#include "../List.h"
 
-#include "internal/Policy.h"
-#include "internal/Utility.h"
+#include "Policy.h"
+#include "Utility.h"
 
 namespace bmin {
 

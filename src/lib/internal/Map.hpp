@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Map.h"
+#include "../Map.h"
 
 namespace bmin {
 

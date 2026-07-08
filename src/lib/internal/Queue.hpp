@@ -2,11 +2,11 @@
 
 // Included by Queue.h at the end of the header. Re-includes Queue.h so this
 // file can be parsed alone (clangd); #pragma once breaks the cycle.
-#include "Queue.h"  // IWYU pragma: keep
+#include "../Queue.h"  // IWYU pragma: keep
 
-#include "internal/Policy.h"
-#include "internal/Storage.h"
-#include "internal/Utility.h"
+#include "Policy.h"
+#include "Storage.h"
+#include "Utility.h"
 
 namespace bmin {
 

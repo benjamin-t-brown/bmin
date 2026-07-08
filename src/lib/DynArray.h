@@ -88,4 +88,4 @@ extern template class DynArray<const char*>;
 
 }  // namespace bmin
 
-#include "DynArray.hpp"  // IWYU pragma: keep
+#include "internal/DynArray.hpp"  // IWYU pragma: keep

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "DynArray.h"
+#include "../DynArray.h"
 
-#include "internal/Storage.h"
+#include "Storage.h"
 
 namespace bmin {
 
