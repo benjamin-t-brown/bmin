@@ -145,6 +145,54 @@ void List<T>::popFront() {
 }
 
 template <typename T>
+T& List<T>::front() {
+  BMIN_ASSERT(_head);
+  return _head->value;
+}
+
+template <typename T>
+const T& List<T>::front() const {
+  BMIN_ASSERT(_head);
+  return _head->value;
+}
+
+template <typename T>
+void List<T>::splice(Iterator pos, List& other) {
+  if (other.empty()) {
+    return;
+  }
+
+  Node* before = pos._node;
+  Node* first = other._head;
+  Node* last = other._tail;
+
+  if (before == nullptr) {
+    if (_tail) {
+      _tail->next = first;
+      first->prev = _tail;
+    } else {
+      _head = first;
+    }
+    _tail = last;
+  } else {
+    Node* prev = before->prev;
+    if (prev) {
+      prev->next = first;
+      first->prev = prev;
+    } else {
+      _head = first;
+    }
+    last->next = before;
+    before->prev = last;
+  }
+
+  _size += other._size;
+  other._head = nullptr;
+  other._tail = nullptr;
+  other._size = 0;
+}
+
+template <typename T>
 typename List<T>::Iterator List<T>::erase(Iterator it) {
   Node* next = it._node ? it._node->next : nullptr;
   if (it._node) {

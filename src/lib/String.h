@@ -4,6 +4,8 @@
 
 #include "./internal/Types.h"  // IWYU pragma: keep
 
+#include <cstddef>
+
 namespace bmin {
 
 template <typename T>
@@ -17,11 +19,13 @@ class String {
   void growToFit(size_t minCapacity);
 
 public:
+  using value_type = char;
   static constexpr size_t npos = static_cast<size_t>(-1);
 
   String();
   String(const char* s);
   String(const char* s, size_t len);
+  String(size_t count, char c);
   String(const String& o);
   String(String&& o) noexcept;
   ~String();
@@ -46,6 +50,10 @@ public:
 
   const char* cStr() const {
     return _data ? _data : "";
+  }
+
+  const char* c_str() const {
+    return cStr();
   }
 
   char* data() {
@@ -82,6 +90,15 @@ public:
 
   String& pushBack(char c) {
     return append(c);
+  }
+
+  String& push_back(char c) {
+    return pushBack(c);
+  }
+
+  void popBack();
+  void pop_back() {
+    popBack();
   }
 
   String& insert(size_t pos, const char* s);
@@ -157,8 +174,10 @@ bool operator!=(const char* a, const String& b);
 
 bool operator<(const String& a, const String& b);
 bool operator<(const String& a, const char* b);
+bool operator<(const char* a, const String& b);
 bool operator>(const String& a, const String& b);
 bool operator>(const String& a, const char* b);
+bool operator>(const char* a, const String& b);
 bool operator<=(const String& a, const String& b);
 bool operator>=(const String& a, const String& b);
 
@@ -182,5 +201,7 @@ int parseInt(const String& s);
 double parseDouble(const String& s);
 bool isInt(const String& s);
 bool isDouble(const String& s);
+
+String to_string(std::size_t value);
 
 }  // namespace bmin

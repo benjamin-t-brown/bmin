@@ -151,6 +151,18 @@ String::String(const char* s, size_t len) {
   _data[_size] = '\0';
 }
 
+String::String(size_t count, char c) {
+  if (count == 0) {
+    return;
+  }
+  _size = count;
+  growToFit(_size);
+  for (size_t i = 0; i < count; ++i) {
+    _data[i] = c;
+  }
+  _data[_size] = '\0';
+}
+
 String::String(const String& o) {
   if (o._size == 0) {
     return;
@@ -255,6 +267,12 @@ String& String::append(const char* s, size_t len) {
 String& String::append(const String& s) { return append(s.data(), s.size()); }
 
 String& String::append(char c) { return append(&c, 1); }
+
+void String::popBack() {
+  if (_size > 0) {
+    erase(_size - 1, 1);
+  }
+}
 
 String& String::insert(size_t pos, const char* s, size_t len) {
   if (pos > _size) {
@@ -583,6 +601,10 @@ bool isDouble(const String& s) {
   return parseDoubleValue(s.cStr(), out);
 }
 
+String to_string(std::size_t value) {
+  return toString(static_cast<unsigned long long>(value));
+}
+
 bool operator==(const String& a, const String& b) { return a.compare(b) == 0; }
 
 bool operator==(const String& a, const char* b) { return a.compare(b) == 0; }
@@ -599,9 +621,13 @@ bool operator<(const String& a, const String& b) { return a.compare(b) < 0; }
 
 bool operator<(const String& a, const char* b) { return a.compare(b) < 0; }
 
+bool operator<(const char* a, const String& b) { return b.compare(a) > 0; }
+
 bool operator>(const String& a, const String& b) { return a.compare(b) > 0; }
 
 bool operator>(const String& a, const char* b) { return a.compare(b) > 0; }
+
+bool operator>(const char* a, const String& b) { return b.compare(a) < 0; }
 
 bool operator<=(const String& a, const String& b) { return a.compare(b) <= 0; }
 

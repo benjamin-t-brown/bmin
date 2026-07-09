@@ -46,6 +46,11 @@ public:
   void popBack();
   void popFront();
 
+  T& front();
+  const T& front() const;
+
+  void splice(Iterator pos, List& other);
+
   Iterator erase(Iterator it);
 };
 

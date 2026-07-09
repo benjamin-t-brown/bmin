@@ -4,7 +4,12 @@
 
 #include "./internal/Types.h" // IWYU pragma: keep
 
+#include <initializer_list>
+
 namespace bmin {
+
+template <typename T>
+class DynArrayReverseIterator;
 
 template <typename T>
 class DynArray {
@@ -17,6 +22,7 @@ class DynArray {
 public:
   DynArray();
   explicit DynArray(size_t count);
+  DynArray(std::initializer_list<T> init);
   DynArray(const DynArray& o);
   DynArray(DynArray&& o) noexcept;
   ~DynArray();
@@ -45,6 +51,8 @@ public:
 
   void reserve(size_t n);
   void clear();
+  void resize(size_t n);
+  void resize(size_t n, const T& value);
 
   void pushBack(const T& value);
   void pushBack(T&& value);
@@ -53,6 +61,11 @@ public:
   void emplaceBack(Args&&... args);
 
   void popBack();
+
+  T& front();
+  const T& front() const;
+  T& back();
+  const T& back() const;
 
   T& operator[](size_t i) {
     return _data[i];
@@ -79,6 +92,63 @@ public:
 
   const T* end() const {
     return _data + _size;
+  }
+
+  using Iterator = T*;
+  using ConstIterator = const T*;
+  using ReverseIterator = DynArrayReverseIterator<T>;
+  using ConstReverseIterator = DynArrayReverseIterator<const T>;
+
+  Iterator insert(Iterator pos, const T& value);
+  Iterator insert(Iterator pos, T&& value);
+
+  Iterator erase(Iterator pos);
+  Iterator erase(Iterator first, Iterator last);
+  void erase(size_t index);
+
+  template <typename Pred>
+  size_t eraseIf(Pred pred);
+
+  ReverseIterator rbegin() {
+    return ReverseIterator(end());
+  }
+
+  ReverseIterator rend() {
+    return ReverseIterator(begin());
+  }
+
+  ConstReverseIterator rbegin() const {
+    return ConstReverseIterator(end());
+  }
+
+  ConstReverseIterator rend() const {
+    return ConstReverseIterator(begin());
+  }
+};
+
+template <typename T>
+class DynArrayReverseIterator {
+  T* _ptr = nullptr;
+
+public:
+  DynArrayReverseIterator() = default;
+  explicit DynArrayReverseIterator(T* ptr) : _ptr(ptr) {}
+
+  T& operator*() const {
+    return *(_ptr - 1);
+  }
+
+  DynArrayReverseIterator& operator++() {
+    --_ptr;
+    return *this;
+  }
+
+  bool operator==(DynArrayReverseIterator o) const {
+    return _ptr == o._ptr;
+  }
+
+  bool operator!=(DynArrayReverseIterator o) const {
+    return !(*this == o);
   }
 };
 

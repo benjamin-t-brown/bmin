@@ -82,12 +82,22 @@ SUITE(test_string) {
   CHECK_EQ(bmin::String::fromInt(0), "0");
 
   int n = 0;
-  CHECK(bmin::String("123").parseInt(n));
+  CHECK(bmin::isInt(bmin::String("123")));
+  n = bmin::parseInt(bmin::String("123"));
   CHECK_EQ(n, 123);
-  CHECK(bmin::String("-99").parseInt(n));
+  CHECK(bmin::isInt(bmin::String("-99")));
+  n = bmin::parseInt(bmin::String("-99"));
   CHECK_EQ(n, -99);
-  CHECK(!bmin::String("12a3").parseInt(n));
-  CHECK(!bmin::String("").parseInt(n));
+  CHECK(!bmin::isInt(bmin::String("12a3")));
+  CHECK(!bmin::isInt(bmin::String("")));
+
+  CHECK_EQ(bmin::String(5, 'x'), "xxxxx");
+  bmin::String stlCompat;
+  stlCompat.push_back('a');
+  stlCompat.push_back('b');
+  CHECK_EQ(stlCompat, "ab");
+  stlCompat.pop_back();
+  CHECK_EQ(stlCompat, "a");
 
   CHECK_EQ(bmin::toString(42), "42");
   CHECK_EQ(bmin::toString(-7), "-7");
