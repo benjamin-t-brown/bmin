@@ -6,6 +6,10 @@ std::string_view toStringView(const String& s) {
   return std::string_view(s.data(), s.size());
 }
 
+String fromStringView(std::string_view v) {
+  return String(v.data(), v.size());
+}
+
 String& append(String& s, std::string_view v) {
   return s.append(v.data(), v.size());
 }

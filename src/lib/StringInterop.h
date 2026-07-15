@@ -8,6 +8,7 @@ namespace bmin {
 
 std::string_view toStringView(const String& s);
 
+String fromStringView(std::string_view v);
 void toStringView(String&&) = delete;
 
 String& append(String& s, std::string_view v);
