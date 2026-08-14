@@ -36,6 +36,13 @@ template <typename T>
 List<T>::List() = default;
 
 template <typename T>
+List<T>::List(std::initializer_list<T> init) : List() {
+  for (const T& value : init) {
+    pushBack(value);
+  }
+}
+
+template <typename T>
 List<T>::List(const List& o) : List() {
   for (const T& v : o) {
     pushBack(v);
@@ -199,6 +206,16 @@ typename List<T>::Iterator List<T>::erase(Iterator it) {
     unlink(it._node);
   }
   return Iterator(next);
+}
+
+template <typename T>
+bool List<T>::contains(const T& value) const {
+  for (Iterator it = begin(); it != end(); ++it) {
+    if (*it == value) {
+      return true;
+    }
+  }
+  return false;
 }
 
 template <typename T>

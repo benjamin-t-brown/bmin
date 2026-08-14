@@ -4,6 +4,8 @@
 
 #include "./internal/Types.h"  // IWYU pragma: keep
 
+#include <initializer_list>
+
 namespace bmin {
 
 template <typename T>
@@ -20,6 +22,7 @@ public:
   class Iterator;
 
   List();
+  List(std::initializer_list<T> init);
   List(const List& o);
   List(List&& o) noexcept;
   List& operator=(List o);
@@ -52,6 +55,8 @@ public:
   void splice(Iterator pos, List& other);
 
   Iterator erase(Iterator it);
+
+  bool contains(const T& value) const;
 };
 
 template <typename T>

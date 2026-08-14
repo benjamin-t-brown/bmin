@@ -44,7 +44,7 @@ public:
     return _size == 0;
   }
 
-  Iterator begin();
+  Iterator begin() const;
   Iterator end() const;
 
   Iterator find(const K& key);

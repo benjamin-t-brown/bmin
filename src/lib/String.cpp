@@ -458,6 +458,10 @@ size_t String::find(const String& needle, size_t start) const {
 
 bool String::contains(const char* needle) const { return find(needle) != npos; }
 
+bool String::contains(const String& needle) const {
+  return find(needle) != npos;
+}
+
 bool String::startsWith(const char* prefix) const {
   if (!prefix) {
     return true;

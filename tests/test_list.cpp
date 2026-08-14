@@ -27,4 +27,16 @@ SUITE(test_list) {
   names.pushBack(bmin::String("ann"));
   names.pushBack(bmin::String("bob"));
   CHECK_EQ((*names.begin()), "ann");
+
+  CHECK(list.contains(1));
+  CHECK(!list.contains(99));
+  CHECK(names.contains(bmin::String("bob")));
+  CHECK(!names.contains(bmin::String("zed")));
+
+  bmin::List<int> fromInit = {10, 20, 30};
+  CHECK_EQ(fromInit.size(), 3u);
+  CHECK(fromInit.contains(10));
+  CHECK(fromInit.contains(20));
+  CHECK(fromInit.contains(30));
+  CHECK(!fromInit.contains(40));
 }

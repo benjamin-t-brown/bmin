@@ -84,11 +84,11 @@ typename Map<K, V, H, E>::Iterator Map<K, V, H, E>::findIterator(
 }
 
 template <typename K, typename V, typename H, typename E>
-typename Map<K, V, H, E>::Iterator Map<K, V, H, E>::begin() {
+typename Map<K, V, H, E>::Iterator Map<K, V, H, E>::begin() const {
   if (_buckets.size() == 0) {
     return end();
   }
-  Iterator it(this, 0, _buckets[0].begin());
+  Iterator it(const_cast<Map*>(this), 0, _buckets[0].begin());
   it.advancePastEmpty();
   return it;
 }

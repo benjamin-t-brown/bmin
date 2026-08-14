@@ -109,6 +109,8 @@ public:
   template <typename Pred>
   size_t eraseIf(Pred pred);
 
+  bool contains(const T& value) const;
+
   ReverseIterator rbegin() {
     return ReverseIterator(end());
   }

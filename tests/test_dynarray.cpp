@@ -23,4 +23,8 @@ SUITE(test_dynarray) {
 
   c.reserve(100);
   CHECK(c.capacity() >= 100u);
+
+  CHECK(c.contains(1));
+  CHECK(c.contains(2));
+  CHECK(!c.contains(3));
 }

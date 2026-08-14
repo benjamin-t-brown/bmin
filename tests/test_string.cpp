@@ -151,6 +151,8 @@ SUITE(test_string) {
   CHECK_EQ(hay.find("two"), 4u);
   CHECK_EQ(hay.find("four"), bmin::String::npos);
   CHECK(hay.contains("three"));
+  CHECK(hay.contains(bmin::String("two")));
+  CHECK(!hay.contains("four"));
   CHECK(hay.startsWith("one"));
   CHECK(hay.endsWith("three"));
   CHECK(!hay.startsWith("two"));

@@ -119,6 +119,7 @@ public:
   size_t find(const String& needle, size_t start = 0) const;
 
   bool contains(const char* needle) const;
+  bool contains(const String& needle) const;
   bool startsWith(const char* prefix) const;
   bool endsWith(const char* suffix) const;
 

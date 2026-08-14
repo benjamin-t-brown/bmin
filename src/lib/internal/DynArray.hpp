@@ -222,6 +222,16 @@ size_t DynArray<T>::eraseIf(Pred pred) {
 }
 
 template <typename T>
+bool DynArray<T>::contains(const T& value) const {
+  for (size_t i = 0; i < _size; ++i) {
+    if (_data[i] == value) {
+      return true;
+    }
+  }
+  return false;
+}
+
+template <typename T>
 void DynArray<T>::pushBack(const T& value) {
   emplaceBack(value);
 }

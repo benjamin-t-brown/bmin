@@ -37,4 +37,11 @@ SUITE(test_map) {
 
   CHECK(m.erase(bmin::String("one")));
   CHECK(!m.contains(bmin::String("one")));
+
+  const bmin::Map<bmin::String, int>& cm = m;
+  size_t n = 0;
+  for (auto it = cm.begin(); it != cm.end(); ++it) {
+    ++n;
+  }
+  CHECK_EQ(n, cm.size());
 }
