@@ -1,6 +1,6 @@
-#include "TestHarness.h"  // IWYU pragma: keep
+#include "TestHarness.h"
 
-#include "Queue.h"  // IWYU pragma: keep
+import bmin.containers;
 
 SUITE(test_queue) {
   bmin::Queue<int> q;

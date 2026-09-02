@@ -6,7 +6,6 @@ SUITE(test_map);
 SUITE(test_uniqueptr);
 SUITE(test_stringinterop);
 SUITE(test_custom_types);
-
 SUITE(test_queue);
 SUITE(test_list);
 SUITE(test_stringstream);

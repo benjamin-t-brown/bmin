@@ -1,5 +1,6 @@
-#include "TestHarness.h"  // IWYU pragma: keep
-#include "List.h" 
+#include "TestHarness.h"
+
+import bmin.containers;
 
 SUITE(test_list) {
   bmin::List<int> list;

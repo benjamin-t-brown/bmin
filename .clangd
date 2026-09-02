@@ -1,8 +1,27 @@
 CompileFlags:
   Add:
     - -std=c++23
+---
+If:
+  PathMatch: src/lib/.*
+CompileFlags:
+  Add:
     - -Isrc/lib
     - -Isrc
+---
+If:
+  PathMatch: (src/modules|module_example|tests)/.*
+CompileFlags:
+  Add:
+    - -Isrc/modules
+    - -Itests
+---
+If:
+  PathMatch: example/.*
+CompileFlags:
+  Add:
+    - -Ibmin/include
+    - -Isrc/lib
 ---
 # Negative compile tests: must fail when built via check_compile_fail.sh
 If:

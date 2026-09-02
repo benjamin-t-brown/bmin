@@ -1,0 +1,12 @@
+---
+description: Use LF line endings for all source and text files
+alwaysApply: true
+---
+
+# Line endings
+
+- All source and text files use **LF only** (`\n`), never CRLF (`\r\n`).
+- Applies to: `.cpp`, `.h`, `.hpp`, `.cppm`, `.mk`, `Makefile`, `.sh`, `.md`, `.json`, `.yml`, configs, etc.
+- Exceptions (CRLF allowed): Windows-only scripts such as `.bat`, `.cmd`, `.ps1` (see `.gitattributes`).
+- When creating or editing files, write LF. Do not introduce `\r`.
+- Repo already sets `* text=auto eol=lf` in `.gitattributes` and `files.eol: \n` in editor settings.

@@ -11,6 +11,11 @@ compile_commands.json
 node_modules
 localFile.txt
 src/build
+src/modules/build
+src/modules/gcm.cache
+gcm.cache
+tests/modbuild
+tests/gcm.cache
 .source_ok
 dist
 tests/test_runner
@@ -21,3 +26,11 @@ bench/std/bench
 bench/std/bench.exe
 bench/bmin/*.o
 bench/std/*.o
+module_example/.bmin-bmi
+module_example/gcm.cache
+module_example/wordcount
+module_example/wordcount.exe
+module_example/main.o
+example/wordcount
+example/wordcount.exe
+example/main.o

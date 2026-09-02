@@ -1,6 +1,7 @@
-#include "TestHarness.h"  // IWYU pragma: keep
+#include "TestHarness.h"
+#include <cstddef>
 
-#include "StringStream.h"  // IWYU pragma: keep
+import bmin.containers;
 
 SUITE(test_stringstream) {
   bmin::StringStream ss;
@@ -8,7 +9,7 @@ SUITE(test_stringstream) {
   CHECK_EQ(ss.str(), "port=8080 ok=true name=srv");
 
   ss.clear();
-  ss << static_cast<size_t>(42);
+  ss << static_cast<std::size_t>(42);
   CHECK_EQ(ss.str(), "42");
 
   ss.clear();

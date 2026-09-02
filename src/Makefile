@@ -57,7 +57,7 @@ LIB_BMIN = $(LIB_OUTPUT_DIR)/libbmin.a
 
 HEADER_SRC_DIR = lib
 
-.PHONY: native wasm clean test dist $(DIRS_TO_CREATE)
+.PHONY: native wasm clean test dist modules install-headers install-modules $(DIRS_TO_CREATE)
 
 native:
 	@$(MAKE) all TARGET=native
@@ -73,14 +73,17 @@ all: dist
 test:
 	@$(MAKE) -C ../tests test
 
+modules:
+	@$(MAKE) -C modules smoke
+
 $(DIRS_TO_CREATE):
 	@mkdir -p $@
 
 $(LIB_BMIN): $(OBJECTS) | $(LIB_OUTPUT_DIR)
 	$(AR) rcs $@ $(OBJECTS)
 
-dist: $(LIB_BMIN)
-	@echo "Creating library and headers for $(TARGET) at $(INSTALL_DIR)"
+install-headers: $(LIB_BMIN)
+	@echo "Installing headers + libbmin.a for $(TARGET) at $(INSTALL_DIR)"
 	@mkdir -p $(INSTALL_DIR)/lib
 	@mkdir -p $(INSTALL_DIR)/include
 	@cp $(LIB_BMIN) $(INSTALL_DIR)/lib
@@ -89,6 +92,16 @@ dist: $(LIB_BMIN)
 	@mkdir -p $(INSTALL_DIR)/include/internal
 	cp -f $(HEADER_SRC_DIR)/internal/*.h $(INSTALL_DIR)/include/internal
 	cp -f $(HEADER_SRC_DIR)/internal/*.hpp $(INSTALL_DIR)/include/internal
+
+install-modules:
+ifeq ($(TARGET),wasm)
+	@echo "Skipping C++ modules install for wasm"
+else
+	@$(MAKE) -C modules install
+endif
+
+# Dual-ship: classic headers + named modules (native only).
+dist: install-headers install-modules
 	@echo "Created $(TARGET) bmin folder at top level directory."
 
 -include $(DEPENDS)
@@ -103,3 +116,4 @@ clean:
 	rm -f libbmin.a
 	rm -rf ../bmin
 	rm -rf main.d
+	@$(MAKE) -C modules clean

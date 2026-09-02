@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "llvm-vs-code-extensions.vscode-clangd",
+    "daiyousei-qz.minimal-cpp-syntax"
+  ],
+  "unwantedRecommendations": [
+    "ms-vscode.cpptools-extension-pack",
+    "jeff-hykin.better-cpp-syntax"
+  ]
+}
+

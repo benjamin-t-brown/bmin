@@ -1,8 +1,6 @@
-#include "TestHarness.h"  // IWYU pragma: keep
+#include "TestHarness.h"
 
-#include "DynArray.h"  // IWYU pragma: keep
-#include "Map.h"  // IWYU pragma: keep
-#include "UniquePtr.h"  // IWYU pragma: keep
+import bmin.containers;
 
 struct Point {
   int x;

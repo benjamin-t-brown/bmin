@@ -32,8 +32,11 @@ Output is installed to `bmin/`:
 
 ```
 bmin/lib/libbmin.a
+bmin/lib/libbmin_modules.a
 bmin/include/*.h
-bmin/include/*.hpp
+bmin/include/internal/*
+bmin/modules/*.cppm          # named modules (dual-ship)
+bmin/modules/README.md
 ```
 
 ## Test
@@ -43,9 +46,12 @@ cd tests
 make test
 ```
 
-Runs unit checks and compile-fail scripts (no external test framework).
+Runs unit checks via **C++ modules** (`import bmin.containers`, links
+`-lbmin_modules`) plus compile-fail scripts against the header API.
 
 ## Link in your project
+
+### Headers (`#include`) — default / widest compatibility
 
 ```
 -I path/to/bmin/include -L path/to/bmin/lib -lbmin
@@ -53,6 +59,48 @@ Runs unit checks and compile-fail scripts (no external test framework).
 
 Include individual headers (`String.h`, `DynArray.h`, …). Use `All.h` only in
 tests or quick experiments.
+
+### Modules (`import`) — GCC with `-fmodules-ts`
+
+Link `-lbmin_modules`. Include the helper Make fragment so you do not list
+every module by hand:
+
+```makefile
+include path/to/bmin/modules/make/use.mk
+main.o: main.cpp bmin-bmi
+	$(CXX) $(BMIN_CXXFLAGS) -c main.cpp -o $@
+```
+
+See `bmin/modules/README.md`.
+
+**Do not mix** `#include` of bmin headers and `import` of bmin modules for the
+same types in one program — dual-ship means two parallel APIs, not one ODR.
+
+### Editor (Cursor / VS Code) for modules
+
+Use **clangd** (not Microsoft C/C++ IntelliSense) with
+`--experimental-modules-support`. Refresh the compilation database after module
+layout changes:
+
+```bash
+./compile-commands-module.sh
+```
+
+Then restart clangd.
+
+For TextMate highlighting of `import` / `module`, prefer **Minimal C++ Syntax**
+(`daiyousei-qz.minimal-cpp-syntax`) over Better C++ Syntax — the latter often
+leaves module keywords uncolored when clangd owns semantic highlighting.
+Cursor’s marketplace does not ship that extension, so install from the VS
+Marketplace VSIX:
+
+```bash
+curl -L -o minimal-cpp-syntax.vsix \
+  "https://daiyousei-qz.gallerycdn.vsassets.io/extensions/daiyousei-qz/minimal-cpp-syntax/0.0.4/1649824472376/Microsoft.VisualStudio.Services.VSIXPackage"
+cursor --install-extension ./minimal-cpp-syntax.vsix
+```
+
+Disable Better C++ Syntax afterward and reload the window.
 
 ## Std → bmin mapping
 

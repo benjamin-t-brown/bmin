@@ -1,5 +1,7 @@
-#include "TestHarness.h"  // IWYU pragma: keep
-#include "All.h"  // IWYU pragma: keep
+#include "TestHarness.h"
+#include <string_view>
+
+import bmin.containers;
 
 SUITE(test_string) {
   bmin::String a("hello");

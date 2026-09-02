@@ -1,6 +1,7 @@
-#include "TestHarness.h"  // IWYU pragma: keep
+#include "TestHarness.h"
+#include <string_view>
 
-#include "StringInterop.h"  // IWYU pragma: keep
+import bmin.string_interop;
 
 SUITE(test_stringinterop) {
   bmin::String s("interop");

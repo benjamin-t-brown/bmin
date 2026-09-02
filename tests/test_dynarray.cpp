@@ -1,6 +1,6 @@
-#include "TestHarness.h"  // IWYU pragma: keep
+#include "TestHarness.h"
 
-#include "All.h"  // IWYU pragma: keep
+import bmin.containers;
 
 SUITE(test_dynarray) {
   bmin::DynArray<int> a;

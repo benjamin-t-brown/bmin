@@ -2,7 +2,9 @@
   "cSpell.words": [
     "BMIN",
   ],
+  "files.eol": "\n",
   "files.associations": {
+    "*.cppm": "cpp",
     "cctype": "cpp",
     "clocale": "cpp",
     "cmath": "cpp",
@@ -109,8 +111,17 @@
     "SDL_*": true
   },
   "C_Cpp.intelliSenseEngine": "disabled",
-  "clangd.path": "clangd",
   "clangd.checkUpdates": false,
+  "clangd.arguments": [
+    "--experimental-modules-support",
+    "--compile-commands-dir=${workspaceFolder}",
+    "--background-index",
+    "--log=verbose"
+  ],
+  "editor.semanticHighlighting.enabled": true,
+  "[cpp]": {
+    "editor.semanticHighlighting.enabled": true
+  },
   "files.exclude": {
     "**/*.o": true,
     "**/*.exe": true
