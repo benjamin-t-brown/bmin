@@ -74,6 +74,7 @@ all: dist
 
 test:
 	@$(MAKE) -C ../tests test
+	@$(MAKE) -C modules check
 
 modules:
 	@$(MAKE) -C modules smoke

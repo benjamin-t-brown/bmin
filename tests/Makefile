@@ -4,8 +4,17 @@ BMIN_INCLUDE := $(BMIN_OUTPUT)/include
 BMIN_MODULES := $(BMIN_OUTPUT)/modules
 BMIN_HEADER_LIB := $(BMIN_OUTPUT)/lib/libbmin.a
 BMIN_MODULE_LIB := $(BMIN_OUTPUT)/lib/libbmin_modules.a
+BMIN_DIST_STAMP := $(BMIN_OUTPUT)/.test-artifacts-ready
+BMIN_BUILD_INPUTS := \
+	$(wildcard $(BMIN_SRC_DIR)/lib/*.cpp) \
+	$(wildcard $(BMIN_SRC_DIR)/lib/*.h) \
+	$(wildcard $(BMIN_SRC_DIR)/lib/internal/*) \
+	$(wildcard $(BMIN_SRC_DIR)/modules/*.cppm) \
+	$(wildcard $(BMIN_SRC_DIR)/modules/*.cpp) \
+	$(wildcard $(BMIN_SRC_DIR)/modules/make/*)
 
 include $(BMIN_SRC_DIR)/modules/make/config.mk
+include $(BMIN_SRC_DIR)/modules/make/module-graph.mk
 
 BUILD := build
 HEADER_BUILD := $(BUILD)/headers
@@ -26,30 +35,36 @@ TEST_NAMES := \
 
 HEADER_OBJECTS := $(patsubst %,$(HEADER_BUILD)/%.o,$(TEST_NAMES))
 MODULE_OBJECTS := $(patsubst %,$(MODULE_BUILD)/%.o,$(TEST_NAMES))
-DIRECT_SOURCES := $(wildcard direct_import/*.cpp)
-DIRECT_OBJECTS := $(patsubst direct_import/%.cpp,$(DIRECT_BUILD)/%.o,$(DIRECT_SOURCES))
+PUBLIC_IMPORT_SOURCES := direct_import/containers.cpp direct_import/string_interop.cpp
+INTERNAL_IMPORT_SOURCES := $(filter-out $(PUBLIC_IMPORT_SOURCES),$(wildcard direct_import/*.cpp))
+PUBLIC_IMPORT_OBJECTS := $(patsubst direct_import/%.cpp,$(DIRECT_BUILD)/%.o,$(PUBLIC_IMPORT_SOURCES))
+INTERNAL_IMPORT_OBJECTS := $(patsubst direct_import/%.cpp,$(DIRECT_BUILD)/%.o,$(INTERNAL_IMPORT_SOURCES))
 
 HEADER_RUNNER := $(HEADER_BUILD)/test_runner
 MODULE_RUNNER := $(MODULE_BUILD)/test_runner
-MODULE_BMI_STAMP := gcm.cache/.bmin-ready
+BMIN_CACHE_KEY := $(shell sh $(BMIN_SRC_DIR)/modules/make/cache-key.sh "$(CXX)" "$(subst ",\",$(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS))")
+MODULE_BMI_STAMP := gcm.cache/.bmin-ready-$(BMIN_CACHE_KEY)
 
 HEADER_FLAGS := -Wall -std=c++23 -g -iquote $(BMIN_INCLUDE) -iquote .
 MODULE_FLAGS := $(BMIN_MODULE_CXXFLAGS) -I$(BMIN_MODULES) -I.
 
 .DEFAULT_GOAL := test
-.PHONY: test test-headers test-modules direct-imports \
+.PHONY: test test-headers test-modules public-import-check internal-module-checks direct-imports \
   test-compile-fail test-compile-fail-headers test-compile-fail-modules \
   bmin clean
 
-test: test-headers test-modules direct-imports test-compile-fail
+test: test-headers test-modules public-import-check internal-module-checks test-compile-fail
 
-bmin:
+bmin: $(BMIN_DIST_STAMP)
+
+$(BMIN_DIST_STAMP): $(BMIN_BUILD_INPUTS)
 	$(MAKE) -C $(BMIN_SRC_DIR) native \
 		CXX="$(CXX)" \
 		BMIN_MODULE_CXXFLAGS="$(BMIN_MODULE_CXXFLAGS)" \
 		BMIN_MODULE_INTERFACE_FLAGS="$(BMIN_MODULE_INTERFACE_FLAGS)"
+	@touch $@
 
-$(BMIN_HEADER_LIB) $(BMIN_MODULE_LIB): bmin
+$(BMIN_HEADER_LIB) $(BMIN_MODULE_LIB): $(BMIN_DIST_STAMP)
 	@test -f $@
 
 $(MODULE_BMI_STAMP): $(BMIN_MODULE_LIB)
@@ -85,8 +100,13 @@ test-modules: $(MODULE_RUNNER)
 $(DIRECT_BUILD)/%.o: direct_import/%.cpp $(MODULE_BMI_STAMP) | $(DIRECT_BUILD)
 	$(CXX) $(MODULE_FLAGS) -c $< -o $@
 
-direct-imports: $(DIRECT_OBJECTS)
-	@echo "direct_import: OK"
+public-import-check: $(PUBLIC_IMPORT_OBJECTS)
+	@echo "public imports: OK"
+
+internal-module-checks: $(INTERNAL_IMPORT_OBJECTS)
+	@echo "internal modules: OK"
+
+direct-imports: public-import-check internal-module-checks
 
 test-compile-fail: test-compile-fail-headers test-compile-fail-modules
 

@@ -35,7 +35,7 @@ those are **not** portable across GCC versions, so they are generated locally.
 ```makefile
 include path/to/bmin/modules/make/use.mk
 
-main.o: main.cpp bmin-bmi
+main.o: main.cpp | bmin-bmi
 	$(CXX) $(BMIN_CXXFLAGS) -c main.cpp -o $@
 
 app: main.o
@@ -43,7 +43,9 @@ app: main.o
 ```
 
 `bmin-bmi` builds every module interface into `./gcm.cache` once. You do **not**
-need to list individual `.cppm` files in your Makefile.
+need to list individual `.cppm` files in your Makefile. Its cache stamp includes
+the compiler, compiler version, and module flags, so changing the toolchain
+automatically invalidates incompatible BMIs.
 
 ```cpp
 import bmin.containers;
@@ -88,3 +90,7 @@ Syntax — see the main `README.md` “Editor” section.
 
 Modules today: String, DynArray, List, Queue, Map, Hash, UniquePtr,
 StringStream, StringInterop, plus the core template-support module.
+
+`make -C src/modules check` validates the declared graph against the source
+imports, checks the internal interfaces, and runs a consumer using the public
+`bmin.containers` entry point.

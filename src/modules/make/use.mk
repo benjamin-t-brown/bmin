@@ -9,7 +9,7 @@
 #
 # Example:
 #   include ../bmin/modules/make/use.mk
-#   main.o: main.cpp bmin-bmi
+#   main.o: main.cpp | bmin-bmi
 #           $(CXX) $(BMIN_CXXFLAGS) -c main.cpp -o $@
 #   app: main.o
 #           $(CXX) $(BMIN_CXXFLAGS) -o $@ main.o $(BMIN_LDLIBS)
@@ -18,9 +18,12 @@
 
 _BMIN_MAKE_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 include $(_BMIN_MAKE_DIR)/config.mk
+include $(_BMIN_MAKE_DIR)/module-graph.mk
 
 # .cppm sources live in the parent modules/ directory.
 BMIN_MODULES_DIR := $(abspath $(_BMIN_MAKE_DIR)/..)
+BMIN_MODULE_SOURCE_FILES := \
+	$(addprefix $(BMIN_MODULES_DIR)/,$(addsuffix .cppm,$(BMIN_INTERFACE_MODULES)))
 
 # Library install root: prefer sibling ../lib (installed), else repo bmin/.
 ifeq ($(wildcard $(BMIN_MODULES_DIR)/../lib/libbmin_modules.a),)
@@ -39,7 +42,8 @@ ifeq ($(OS),Windows_NT)
 endif
 
 BMIN_LIB ?= $(BMIN_ROOT)/lib/libbmin_modules.a
-BMIN_BMI_STAMP ?= gcm.cache/.bmin-ready
+BMIN_CACHE_KEY := $(shell sh $(_BMIN_MAKE_DIR)/cache-key.sh "$(CXX)" "$(subst ",\",$(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS))")
+BMIN_BMI_STAMP ?= gcm.cache/.bmin-ready-$(BMIN_CACHE_KEY)
 
 # Included makefiles often appear before the consumer's `all:` rule; without
 # this, the first helper target becomes `make`'s default goal.
@@ -58,7 +62,7 @@ $(BMIN_LIB):
 
 bmin-bmi: $(BMIN_BMI_STAMP)
 
-$(BMIN_BMI_STAMP): $(BMIN_LIB)
+$(BMIN_BMI_STAMP): $(BMIN_LIB) $(BMIN_MODULE_SOURCE_FILES)
 	$(MAKE) -f $(_BMIN_MAKE_DIR)/build-bmi.mk \
 		BMIN_MOD=$(BMIN_MODULES_DIR) \
 		CXX="$(CXX)" \

@@ -15,79 +15,37 @@ MOD_INC = -I$(BENCH) -I.
 LIB_A = $(INSTALL_DIR)/lib/libbmin.a
 LIB_MODULES = $(BUILD)/libbmin_modules.a
 
-.PHONY: all modules smoke clean time-compile ensure-lib install dist lib
+.PHONY: all check modules smoke public-import-check internal-module-checks \
+	validate-module-graph clean time-compile ensure-lib install dist lib
 
 all: smoke
 
 modules: smoke
 
-$(BUILD) $(BUILD)/headers $(BUILD)/modules:
+BMIN_CACHE_KEY := $(shell sh make/cache-key.sh "$(CXX)" "$(subst ",\",$(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS))")
+BMIN_CACHE_STAMP := gcm.cache/.bmin-config-$(BMIN_CACHE_KEY)
+
+BMIN_MODULE_ROOT := .
+BMIN_MODULE_OBJDIR := $(BUILD)
+BMIN_MODULE_INCLUDES := $(INCLUDES)
+BMIN_MODULE_EXTRA_PREREQS := $(BMIN_CACHE_STAMP)
+include make/native-rules.mk
+
+BMIN_IMPLEMENTATION_OBJECTS := $(patsubst %,$(BUILD)/%-impl.o,$(BMIN_IMPLEMENTATION_MODULES))
+MODULE_OBJS := $(BMIN_INTERFACE_OBJECTS) $(BMIN_IMPLEMENTATION_OBJECTS)
+
+$(BMIN_CACHE_STAMP):
+	rm -rf gcm.cache
+	@mkdir -p gcm.cache
+	@touch $@
+
+$(BUILD): | $(BMIN_CACHE_STAMP)
+
+$(BUILD)/headers $(BUILD)/modules:
 	@mkdir -p $@
 
-$(BUILD)/bmin.core.o: bmin.core.cppm | $(BUILD)
-	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
-
-$(BUILD)/bmin.core-impl.o: bmin.core.cpp $(BUILD)/bmin.core.o | $(BUILD)
+$(BUILD)/%-impl.o: %.cpp $(BUILD)/%.o | $(BUILD)
 	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(INCLUDES) -c $< -o $@
-
-$(BUILD)/bmin.dynarray.o: bmin.dynarray.cppm $(BUILD)/bmin.core.o | $(BUILD)
-	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
-
-$(BUILD)/bmin.unique_ptr.o: bmin.unique_ptr.cppm $(BUILD)/bmin.core.o | $(BUILD)
-	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
-
-$(BUILD)/bmin.string.o: bmin.string.cppm $(BUILD)/bmin.dynarray.o $(BUILD)/bmin.core.o | $(BUILD)
-	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
-
-$(BUILD)/bmin.string-impl.o: bmin.string.cpp $(BUILD)/bmin.string.o | $(BUILD)
-	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(INCLUDES) -c $< -o $@
-
-$(BUILD)/bmin.list.o: bmin.list.cppm $(BUILD)/bmin.core.o | $(BUILD)
-	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
-
-$(BUILD)/bmin.queue.o: bmin.queue.cppm $(BUILD)/bmin.dynarray.o | $(BUILD)
-	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
-
-$(BUILD)/bmin.hash.o: bmin.hash.cppm $(BUILD)/bmin.string.o | $(BUILD)
-	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
-
-$(BUILD)/bmin.map.o: bmin.map.cppm $(BUILD)/bmin.hash.o $(BUILD)/bmin.list.o $(BUILD)/bmin.dynarray.o | $(BUILD)
-	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
-
-$(BUILD)/bmin.stringstream.o: bmin.stringstream.cppm $(BUILD)/bmin.string.o | $(BUILD)
-	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
-
-$(BUILD)/bmin.stringstream-impl.o: bmin.stringstream.cpp $(BUILD)/bmin.stringstream.o | $(BUILD)
-	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(INCLUDES) -c $< -o $@
-
-$(BUILD)/bmin.string_interop.o: bmin.string_interop.cppm $(BUILD)/bmin.string.o | $(BUILD)
-	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
-
-$(BUILD)/bmin.string_interop-impl.o: bmin.string_interop.cpp $(BUILD)/bmin.string_interop.o | $(BUILD)
-	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(INCLUDES) -c $< -o $@
-
-$(BUILD)/bmin.containers.o: bmin.containers.cppm \
-		$(BUILD)/bmin.string.o $(BUILD)/bmin.unique_ptr.o $(BUILD)/bmin.dynarray.o \
-		$(BUILD)/bmin.list.o $(BUILD)/bmin.queue.o $(BUILD)/bmin.hash.o $(BUILD)/bmin.map.o \
-		$(BUILD)/bmin.stringstream.o | $(BUILD)
-	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
-
-MODULE_OBJS = \
-	$(BUILD)/bmin.core.o \
-	$(BUILD)/bmin.core-impl.o \
-	$(BUILD)/bmin.dynarray.o \
-	$(BUILD)/bmin.unique_ptr.o \
-	$(BUILD)/bmin.string.o \
-	$(BUILD)/bmin.string-impl.o \
-	$(BUILD)/bmin.list.o \
-	$(BUILD)/bmin.queue.o \
-	$(BUILD)/bmin.hash.o \
-	$(BUILD)/bmin.map.o \
-	$(BUILD)/bmin.stringstream.o \
-	$(BUILD)/bmin.stringstream-impl.o \
-	$(BUILD)/bmin.string_interop.o \
-	$(BUILD)/bmin.string_interop-impl.o \
-	$(BUILD)/bmin.containers.o
 
 $(LIB_MODULES): $(MODULE_OBJS) | $(BUILD)
 	$(AR) rcs $@ $(MODULE_OBJS)
@@ -103,6 +61,29 @@ $(BUILD)/smoke: $(BUILD)/smoke.o $(LIB_MODULES)
 smoke: $(BUILD)/smoke
 	./$(BUILD)/smoke
 
+public-import-check: smoke
+	@echo "public import: OK"
+
+internal-module-checks: $(BMIN_INTERFACE_OBJECTS)
+	@echo "internal modules: OK"
+
+check: validate-module-graph public-import-check internal-module-checks
+
+validate-module-graph:
+	@set -e; \
+	actual='$(sort $(basename $(notdir $(wildcard bmin.*.cppm))))'; \
+	expected='$(sort $(BMIN_INTERFACE_MODULES))'; \
+	if [ "$$actual" != "$$expected" ]; then \
+		echo "bmin interface graph mismatch"; echo "actual:   $$actual"; echo "declared: $$expected"; exit 1; \
+	fi; \
+	actual='$(sort $(basename $(notdir $(wildcard bmin.*.cpp))))'; \
+	expected='$(sort $(BMIN_IMPLEMENTATION_MODULES))'; \
+	if [ "$$actual" != "$$expected" ]; then \
+		echo "bmin implementation graph mismatch"; echo "actual:   $$actual"; echo "declared: $$expected"; exit 1; \
+	fi; \
+	$(foreach module,$(BMIN_INTERFACE_MODULES),actual=$$(sed -nE 's/^(export[[:space:]]+)?import[[:space:]]+(bmin\.[[:alnum:]_]+);/\2/p' $(module).cppm | LC_ALL=C sort | awk 'BEGIN { sep="" } { printf "%s%s", sep, $$0; sep=" " } END { print "" }'); expected='$(sort $(BMIN_DEPS_$(module)))'; if [ "$$actual" != "$$expected" ]; then echo "$(module) import mismatch"; echo "actual:   $$actual"; echo "declared: $$expected"; exit 1; fi; ) \
+	echo "bmin module graph: OK"
+
 # Headers-only install from parent (avoids recurse into modules).
 ensure-lib:
 	@$(MAKE) -C .. install-headers
@@ -111,21 +92,8 @@ ensure-lib:
 
 MODULE_SOURCES = \
 	assert.h \
-	bmin.core.cppm \
-	bmin.core.cpp \
-	bmin.dynarray.cppm \
-	bmin.unique_ptr.cppm \
-	bmin.string.cppm \
-	bmin.string.cpp \
-	bmin.list.cppm \
-	bmin.queue.cppm \
-	bmin.hash.cppm \
-	bmin.map.cppm \
-	bmin.stringstream.cppm \
-	bmin.stringstream.cpp \
-	bmin.string_interop.cppm \
-	bmin.string_interop.cpp \
-	bmin.containers.cppm
+	$(addsuffix .cppm,$(BMIN_INTERFACE_MODULES)) \
+	$(addsuffix .cpp,$(BMIN_IMPLEMENTATION_MODULES))
 
 install dist: $(LIB_MODULES)
 	@echo "Installing modules into $(INSTALL_DIR)"
@@ -134,7 +102,7 @@ install dist: $(LIB_MODULES)
 	@mkdir -p $(INSTALL_DIR)/modules/make
 	cp -f $(LIB_MODULES) $(INSTALL_DIR)/lib/
 	cp -f $(MODULE_SOURCES) $(INSTALL_DIR)/modules/
-	cp -f make/config.mk make/use.mk make/build-bmi.mk $(INSTALL_DIR)/modules/make/
+	cp -f make/config.mk make/module-graph.mk make/native-rules.mk make/cache-key.sh make/use.mk make/build-bmi.mk make/build-bmi-clang.mk $(INSTALL_DIR)/modules/make/
 	cp -f MODULES.md $(INSTALL_DIR)/modules/README.md
 	@echo "Installed libbmin_modules.a, module sources, and make/ helpers."
 

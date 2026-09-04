@@ -71,7 +71,7 @@ every module by hand:
 
 ```makefile
 include path/to/bmin/modules/make/use.mk
-main.o: main.cpp bmin-bmi
+main.o: main.cpp | bmin-bmi
 	$(CXX) $(BMIN_CXXFLAGS) -c main.cpp -o $@
 ```
 

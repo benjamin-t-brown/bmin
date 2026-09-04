@@ -22,7 +22,7 @@ else
   include ../bmin/modules/make/use.mk
 endif
 
-main.o: main.cpp bmin-bmi
+main.o: main.cpp | bmin-bmi
 	$(CXX) $(BMIN_CXXFLAGS) -c main.cpp -o $@
 
 $(EXE)$(EXE_SUFFIX): main.o $(BMIN_LIB)
