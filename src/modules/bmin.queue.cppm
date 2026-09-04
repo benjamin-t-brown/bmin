@@ -49,7 +49,7 @@ void Queue<T>::grow() {
   for (std::size_t i = 0; i < _count; ++i) {
     std::size_t idx = cap ? (_head + i) % cap : 0;
     fresh.pushBack(bmin::move(_buf[idx]));
-    storage::destroyAt(&_buf[idx]);
+    detail::storage::destroyAt(&_buf[idx]);
   }
   _buf = bmin::move(fresh);
   _head = 0;
@@ -62,7 +62,7 @@ void Queue<T>::push(const T& value) {
     grow();
   }
   std::size_t cap = _buf.capacity();
-  storage::constructAt(&_buf[_tail], value);
+  detail::storage::constructAt(&_buf[_tail], value);
   _tail = (_tail + 1) % cap;
   ++_count;
 }
@@ -73,7 +73,7 @@ void Queue<T>::push(T&& value) {
     grow();
   }
   std::size_t cap = _buf.capacity();
-  storage::constructAt(&_buf[_tail], bmin::move(value));
+  detail::storage::constructAt(&_buf[_tail], bmin::move(value));
   _tail = (_tail + 1) % cap;
   ++_count;
 }
@@ -85,7 +85,7 @@ void Queue<T>::emplace(Args&&... args) {
     grow();
   }
   std::size_t cap = _buf.capacity();
-  storage::constructAt(&_buf[_tail], bmin::forward<Args>(args)...);
+  detail::storage::constructAt(&_buf[_tail], bmin::forward<Args>(args)...);
   _tail = (_tail + 1) % cap;
   ++_count;
 }
@@ -94,7 +94,7 @@ template <typename T>
 void Queue<T>::pop() {
   BMIN_ASSERT(_count > 0);
   std::size_t cap = _buf.capacity();
-  storage::destroyAt(&_buf[_head]);
+  detail::storage::destroyAt(&_buf[_head]);
   _head = (_head + 1) % cap;
   --_count;
 }

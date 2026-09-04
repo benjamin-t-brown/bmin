@@ -4,7 +4,7 @@ module;
 #include "assert.h"
 
 export module bmin.list;
-export import bmin.detail;
+export import bmin.core;
 
 export namespace bmin {
 

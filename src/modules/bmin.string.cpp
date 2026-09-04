@@ -10,7 +10,7 @@ module;
 #include "assert.h"
 
 module bmin.string;
-import bmin.detail;
+import bmin.core;
 import bmin.dynarray;
 
 namespace bmin {

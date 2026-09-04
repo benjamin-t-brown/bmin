@@ -50,8 +50,7 @@ example_dir = root / "module_example"
 
 # Interface units clangd must see (named modules).
 IFACES = [
-    "bmin.types.cppm",
-    "bmin.detail.cppm",
+    "bmin.core.cppm",
     "bmin.dynarray.cppm",
     "bmin.unique_ptr.cppm",
     "bmin.string.cppm",
@@ -65,7 +64,7 @@ IFACES = [
 ]
 
 IMPLS = [
-    "bmin.detail.cpp",
+    "bmin.core.cpp",
     "bmin.string.cpp",
     "bmin.stringstream.cpp",
     "bmin.string_interop.cpp",
@@ -122,6 +121,8 @@ if tests_dir.is_dir():
     main = tests_dir / "test_main.cpp"
     if main.is_file():
         db.append(entry(tests_dir, main, extra_args=[f"-I{tests_dir.as_posix()}"]))
+    for src in sorted((tests_dir / "direct_import").glob("*.cpp")):
+        db.append(entry(tests_dir, src, extra_args=[f"-I{tests_dir.as_posix()}"]))
 
 out = root / "compile_commands.json"
 existing = []

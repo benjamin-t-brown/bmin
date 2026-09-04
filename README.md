@@ -46,19 +46,23 @@ cd tests
 make test
 ```
 
-Runs unit checks via **C++ modules** (`import bmin.containers`, links
-`-lbmin_modules`) plus compile-fail scripts against the header API.
+Runs the same unit suite twice: once through the classic headers and
+`libbmin.a`, then through the named modules and `libbmin_modules.a`. It also
+compiles every supported module as a direct import and runs compile-fail checks
+against both APIs.
 
 ## Link in your project
 
 ### Headers (`#include`) — default / widest compatibility
 
-```
--I path/to/bmin/include -L path/to/bmin/lib -lbmin
+```text
+-iquote path/to/bmin/include -L path/to/bmin/lib -lbmin
 ```
 
 Include individual headers (`String.h`, `DynArray.h`, …). Use `All.h` only in
-tests or quick experiments.
+tests or quick experiments. Use `-iquote`, rather than `-I`, because the flat
+classic API contains `String.h`; on case-insensitive filesystems it can
+otherwise shadow the platform's `<string.h>`.
 
 ### Modules (`import`) — GCC with `-fmodules-ts`
 
@@ -72,6 +76,10 @@ main.o: main.cpp bmin-bmi
 ```
 
 See `bmin/modules/README.md`.
+
+The jointly shipped bmin + SDL2W module toolchain currently targets GCC 15.
+On macOS the Make helpers select `g++-15` by default because `/usr/bin/g++` is
+Apple Clang. Module-interface compilation explicitly passes `-x c++`.
 
 **Do not mix** `#include` of bmin headers and `import` of bmin modules for the
 same types in one program — dual-ship means two parallel APIs, not one ODR.

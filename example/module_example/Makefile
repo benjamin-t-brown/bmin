@@ -16,10 +16,10 @@ endif
 all: $(EXE)$(EXE_SUFFIX)
 
 # Consumer helpers live under modules/make/ (not mixed with .cppm sources).
-ifeq ($(wildcard ../bmin/modules/make/use.mk),)
-  include ../src/modules/make/use.mk
+ifeq ($(wildcard ../../bmin/modules/make/use.mk),)
+  include ../../src/modules/make/use.mk
 else
-  include ../bmin/modules/make/use.mk
+  include ../../bmin/modules/make/use.mk
 endif
 
 main.o: main.cpp bmin-bmi

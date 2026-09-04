@@ -31,7 +31,7 @@ $(BMIN_LIB):
 	$(MAKE) -C ../src native
 
 main.o: main.cpp $(BMIN_LIB)
-	$(CXX) $(CXXFLAGS) -I$(BMIN_INC) -c main.cpp -o $@
+	$(CXX) $(CXXFLAGS) -iquote $(BMIN_INC) -c main.cpp -o $@
 
 $(EXE)$(EXE_SUFFIX): main.o $(BMIN_LIB)
 	$(CXX) $(CXXFLAGS) -o $@ main.o -L$(BMIN_ROOT)/lib -lbmin $(LDLIBS_EXTRA)

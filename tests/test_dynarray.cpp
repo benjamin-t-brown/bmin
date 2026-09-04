@@ -1,6 +1,10 @@
 #include "TestHarness.h"
 
+#ifdef BMIN_TEST_MODULES
 import bmin.containers;
+#else
+#include "All.h"
+#endif
 
 SUITE(test_dynarray) {
   bmin::DynArray<int> a;

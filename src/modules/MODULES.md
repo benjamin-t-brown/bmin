@@ -3,6 +3,8 @@
 This tree is installed next to the classic headers. Pick **one** style per
 program — do not `#include` bmin headers and `import` bmin modules for the
 same types in one binary (they are parallel APIs, not the same entities).
+Both products are built and tested; neither is a compatibility wrapper around
+the other.
 
 ## Layout (after `make native`)
 
@@ -18,9 +20,12 @@ bmin/modules/make/build-bmi.mk
 ## Header path (unchanged)
 
 ```text
--I bmin/include -L bmin/lib -lbmin
+-iquote bmin/include -L bmin/lib -lbmin
 #include "String.h"
 ```
+
+Quote-only lookup avoids `String.h` shadowing the platform's `<string.h>` on
+case-insensitive filesystems.
 
 ## Module path (easy)
 
@@ -54,6 +59,19 @@ int main() {
 Prefer `import bmin.containers` unless you need a smaller surface.
 Import `bmin.string_interop` separately for `std::string_view` helpers.
 
+`bmin.core` contains the supported `bmin::move`, `bmin::forward`, and
+`bmin::exchange` utilities required by the containers. Names nested under
+`bmin::detail` are reachable so exported templates can instantiate, but they
+are not public API.
+
+## Compiler contract
+
+The native module build uses GCC 15 for the jointly shipped bmin + SDL2W
+toolchain. Override `CXX`, `BMIN_MODULE_CXXFLAGS`, or
+`BMIN_MODULE_INTERFACE_FLAGS` when integrating another supported compiler.
+The `.cppm` rules pass `-x c++` explicitly because GCC does not infer the
+language from that suffix consistently on every platform.
+
 ## clangd / editor (modules)
 
 ```bash
@@ -69,4 +87,4 @@ Syntax — see the main `README.md` “Editor” section.
 ## Coverage
 
 Modules today: String, DynArray, List, Queue, Map, Hash, UniquePtr,
-StringStream, StringInterop, plus detail/types.
+StringStream, StringInterop, plus the core template-support module.

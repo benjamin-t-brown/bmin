@@ -1,113 +1,103 @@
-EXE = test_runner
-EXE_SUFFIX =
+BMIN_SRC_DIR := ../src
+BMIN_OUTPUT := ../bmin
+BMIN_INCLUDE := $(BMIN_OUTPUT)/include
+BMIN_MODULES := $(BMIN_OUTPUT)/modules
+BMIN_HEADER_LIB := $(BMIN_OUTPUT)/lib/libbmin.a
+BMIN_MODULE_LIB := $(BMIN_OUTPUT)/lib/libbmin_modules.a
 
-BMIN_DIR = ../src
-BMIN_OUTPUT = ../bmin
-BMIN_MOD_LIB = $(BMIN_OUTPUT)/lib/libbmin_modules.a
-MOD_DIR = $(BMIN_OUTPUT)/modules
-MOD_BUILD = modbuild
+include $(BMIN_SRC_DIR)/modules/make/config.mk
 
-TEST_SRCS = \
-  test_main.cpp \
-  test_string.cpp \
-  test_dynarray.cpp \
-  test_map.cpp \
-  test_uniqueptr.cpp \
-  test_stringinterop.cpp \
-  test_custom_types.cpp \
-  test_queue.cpp \
-  test_list.cpp \
-  test_stringstream.cpp
+BUILD := build
+HEADER_BUILD := $(BUILD)/headers
+MODULE_BUILD := $(BUILD)/modules
+DIRECT_BUILD := $(BUILD)/direct-imports
 
-OBJECTS = $(TEST_SRCS:.cpp=.o)
+TEST_NAMES := \
+  test_main \
+  test_string \
+  test_dynarray \
+  test_map \
+  test_uniqueptr \
+  test_stringinterop \
+  test_custom_types \
+  test_queue \
+  test_list \
+  test_stringstream
 
-FLAGS = -Wall -std=c++23 -g -fmodules-ts
-INCLUDES = -I$(MOD_DIR) -I.
-LIBS = -L$(BMIN_OUTPUT)/lib -lbmin_modules
+HEADER_OBJECTS := $(patsubst %,$(HEADER_BUILD)/%.o,$(TEST_NAMES))
+MODULE_OBJECTS := $(patsubst %,$(MODULE_BUILD)/%.o,$(TEST_NAMES))
+DIRECT_SOURCES := $(wildcard direct_import/*.cpp)
+DIRECT_OBJECTS := $(patsubst direct_import/%.cpp,$(DIRECT_BUILD)/%.o,$(DIRECT_SOURCES))
 
-ifeq ($(OS),Windows_NT)
-  EXE_SUFFIX = .exe
-  LIBS += -mconsole -lmingw32
-endif
+HEADER_RUNNER := $(HEADER_BUILD)/test_runner
+MODULE_RUNNER := $(MODULE_BUILD)/test_runner
+MODULE_BMI_STAMP := gcm.cache/.bmin-ready
 
-# BMI producers (object files also end up in libbmin_modules.a; we only need BMIs here).
-MOD_IFACE_OBJS = \
-  $(MOD_BUILD)/bmin.types.o \
-  $(MOD_BUILD)/bmin.detail.o \
-  $(MOD_BUILD)/bmin.dynarray.o \
-  $(MOD_BUILD)/bmin.unique_ptr.o \
-  $(MOD_BUILD)/bmin.string.o \
-  $(MOD_BUILD)/bmin.list.o \
-  $(MOD_BUILD)/bmin.queue.o \
-  $(MOD_BUILD)/bmin.hash.o \
-  $(MOD_BUILD)/bmin.map.o \
-  $(MOD_BUILD)/bmin.stringstream.o \
-  $(MOD_BUILD)/bmin.string_interop.o \
-  $(MOD_BUILD)/bmin.containers.o
+HEADER_FLAGS := -Wall -std=c++23 -g -iquote $(BMIN_INCLUDE) -iquote .
+MODULE_FLAGS := $(BMIN_MODULE_CXXFLAGS) -I$(BMIN_MODULES) -I.
 
-.PHONY: all test test-compile-fail clean bmin
+.DEFAULT_GOAL := test
+.PHONY: test test-headers test-modules direct-imports \
+  test-compile-fail test-compile-fail-headers test-compile-fail-modules \
+  bmin clean
 
-all: test
+test: test-headers test-modules direct-imports test-compile-fail
 
 bmin:
-	$(MAKE) -C $(BMIN_DIR) native
+	$(MAKE) -C $(BMIN_SRC_DIR) native \
+		CXX="$(CXX)" \
+		BMIN_MODULE_CXXFLAGS="$(BMIN_MODULE_CXXFLAGS)" \
+		BMIN_MODULE_INTERFACE_FLAGS="$(BMIN_MODULE_INTERFACE_FLAGS)"
 
-$(BMIN_MOD_LIB): bmin
+$(BMIN_HEADER_LIB) $(BMIN_MODULE_LIB): bmin
+	@test -f $@
 
-$(MOD_BUILD):
+$(MODULE_BMI_STAMP): $(BMIN_MODULE_LIB)
+	$(MAKE) -f $(BMIN_MODULES)/make/build-bmi.mk \
+		BMIN_MOD=$(abspath $(BMIN_MODULES)) \
+		CXX="$(CXX)" \
+		BMIN_MODULE_CXXFLAGS="$(BMIN_MODULE_CXXFLAGS)" \
+		BMIN_MODULE_INTERFACE_FLAGS="$(BMIN_MODULE_INTERFACE_FLAGS)"
+
+$(HEADER_BUILD) $(MODULE_BUILD) $(DIRECT_BUILD):
 	@mkdir -p $@
 
-$(MOD_BUILD)/bmin.types.o: $(MOD_DIR)/bmin.types.cppm | $(MOD_BUILD)
-	$(CXX) $(FLAGS) $(INCLUDES) -c $< -o $@
+$(HEADER_BUILD)/%.o: %.cpp $(BMIN_HEADER_LIB) | $(HEADER_BUILD)
+	$(CXX) $(HEADER_FLAGS) -c $< -o $@
 
-$(MOD_BUILD)/bmin.detail.o: $(MOD_DIR)/bmin.detail.cppm $(MOD_BUILD)/bmin.types.o | $(MOD_BUILD)
-	$(CXX) $(FLAGS) $(INCLUDES) -c $< -o $@
+$(MODULE_BUILD)/%.o: %.cpp $(MODULE_BMI_STAMP) | $(MODULE_BUILD)
+	$(CXX) $(MODULE_FLAGS) -DBMIN_TEST_MODULES=1 -c $< -o $@
 
-$(MOD_BUILD)/bmin.dynarray.o: $(MOD_DIR)/bmin.dynarray.cppm $(MOD_BUILD)/bmin.detail.o | $(MOD_BUILD)
-	$(CXX) $(FLAGS) $(INCLUDES) -c $< -o $@
+$(HEADER_RUNNER): $(HEADER_OBJECTS) $(BMIN_HEADER_LIB)
+	$(CXX) $(HEADER_FLAGS) -o $@ $(HEADER_OBJECTS) \
+		-L$(BMIN_OUTPUT)/lib -lbmin
 
-$(MOD_BUILD)/bmin.unique_ptr.o: $(MOD_DIR)/bmin.unique_ptr.cppm $(MOD_BUILD)/bmin.detail.o | $(MOD_BUILD)
-	$(CXX) $(FLAGS) $(INCLUDES) -c $< -o $@
+$(MODULE_RUNNER): $(MODULE_OBJECTS) $(BMIN_MODULE_LIB)
+	$(CXX) $(MODULE_FLAGS) -o $@ $(MODULE_OBJECTS) \
+		-L$(BMIN_OUTPUT)/lib -lbmin_modules
 
-$(MOD_BUILD)/bmin.string.o: $(MOD_DIR)/bmin.string.cppm $(MOD_BUILD)/bmin.dynarray.o | $(MOD_BUILD)
-	$(CXX) $(FLAGS) $(INCLUDES) -c $< -o $@
+test-headers: $(HEADER_RUNNER)
+	./$(HEADER_RUNNER)
 
-$(MOD_BUILD)/bmin.list.o: $(MOD_DIR)/bmin.list.cppm $(MOD_BUILD)/bmin.detail.o | $(MOD_BUILD)
-	$(CXX) $(FLAGS) $(INCLUDES) -c $< -o $@
+test-modules: $(MODULE_RUNNER)
+	./$(MODULE_RUNNER)
 
-$(MOD_BUILD)/bmin.queue.o: $(MOD_DIR)/bmin.queue.cppm $(MOD_BUILD)/bmin.dynarray.o | $(MOD_BUILD)
-	$(CXX) $(FLAGS) $(INCLUDES) -c $< -o $@
+$(DIRECT_BUILD)/%.o: direct_import/%.cpp $(MODULE_BMI_STAMP) | $(DIRECT_BUILD)
+	$(CXX) $(MODULE_FLAGS) -c $< -o $@
 
-$(MOD_BUILD)/bmin.hash.o: $(MOD_DIR)/bmin.hash.cppm $(MOD_BUILD)/bmin.string.o | $(MOD_BUILD)
-	$(CXX) $(FLAGS) $(INCLUDES) -c $< -o $@
+direct-imports: $(DIRECT_OBJECTS)
+	@echo "direct_import: OK"
 
-$(MOD_BUILD)/bmin.map.o: $(MOD_DIR)/bmin.map.cppm $(MOD_BUILD)/bmin.hash.o $(MOD_BUILD)/bmin.list.o | $(MOD_BUILD)
-	$(CXX) $(FLAGS) $(INCLUDES) -c $< -o $@
+test-compile-fail: test-compile-fail-headers test-compile-fail-modules
 
-$(MOD_BUILD)/bmin.stringstream.o: $(MOD_DIR)/bmin.stringstream.cppm $(MOD_BUILD)/bmin.string.o | $(MOD_BUILD)
-	$(CXX) $(FLAGS) $(INCLUDES) -c $< -o $@
+test-compile-fail-headers: $(BMIN_HEADER_LIB)
+	BMIN_TEST_CXXFLAGS="-std=c++23 -iquote $(abspath $(BMIN_INCLUDE))" \
+		$(SHELL) check_compile_fail.sh headers "$(CXX)"
 
-$(MOD_BUILD)/bmin.string_interop.o: $(MOD_DIR)/bmin.string_interop.cppm $(MOD_BUILD)/bmin.string.o | $(MOD_BUILD)
-	$(CXX) $(FLAGS) $(INCLUDES) -c $< -o $@
-
-$(MOD_BUILD)/bmin.containers.o: $(MOD_DIR)/bmin.containers.cppm \
-		$(MOD_BUILD)/bmin.map.o $(MOD_BUILD)/bmin.queue.o $(MOD_BUILD)/bmin.unique_ptr.o \
-		$(MOD_BUILD)/bmin.stringstream.o | $(MOD_BUILD)
-	$(CXX) $(FLAGS) $(INCLUDES) -c $< -o $@
-
-$(EXE)$(EXE_SUFFIX): $(OBJECTS) $(BMIN_MOD_LIB)
-	$(CXX) $(FLAGS) $(INCLUDES) -o $@ $(OBJECTS) $(LIBS)
-
-test: $(EXE)$(EXE_SUFFIX)
-	./$(EXE)$(EXE_SUFFIX)
-	$(SHELL) check_compile_fail.sh
-
-test-compile-fail:
-	$(SHELL) check_compile_fail.sh
-
-%.o: %.cpp $(BMIN_MOD_LIB) $(MOD_IFACE_OBJS)
-	$(CXX) $(FLAGS) $(INCLUDES) -c $< -o $@
+test-compile-fail-modules: $(MODULE_BMI_STAMP)
+	BMIN_TEST_CXXFLAGS="$(MODULE_FLAGS) -DBMIN_TEST_MODULES=1" \
+		$(SHELL) check_compile_fail.sh modules "$(CXX)"
 
 clean:
-	rm -f $(OBJECTS) $(EXE) $(EXE).exe
-	rm -rf $(MOD_BUILD) gcm.cache
+	rm -rf $(BUILD) .bmin-bmi gcm.cache
+	rm -f test_*.o test_runner test_runner.exe

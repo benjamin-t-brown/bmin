@@ -1,10 +1,7 @@
-import bmin.types;
-import bmin.detail;
+import bmin.core;
 import bmin.containers;
 
 int main() {
-  static_assert(sizeof(bmin::Size) >= 4);
-
   bmin::String s("modules");
   s += " ok";
 

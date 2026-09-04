@@ -2,9 +2,9 @@
 # Header consumers keep using libbmin.a; module consumers use libbmin_modules.a
 # + the .cppm sources (rebuild BMIs with their compiler).
 
-CXX ?= g++
+include make/config.mk
+
 AR ?= ar
-CXXFLAGS = -Wall -std=c++23 -g -fmodules-ts
 INCLUDES = -I.
 
 BUILD = build
@@ -24,61 +24,57 @@ modules: smoke
 $(BUILD) $(BUILD)/headers $(BUILD)/modules:
 	@mkdir -p $@
 
-$(BUILD)/bmin.types.o: bmin.types.cppm | $(BUILD)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+$(BUILD)/bmin.core.o: bmin.core.cppm | $(BUILD)
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
 
-$(BUILD)/bmin.detail.o: bmin.detail.cppm | $(BUILD)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+$(BUILD)/bmin.core-impl.o: bmin.core.cpp $(BUILD)/bmin.core.o | $(BUILD)
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(INCLUDES) -c $< -o $@
 
-$(BUILD)/bmin.detail-impl.o: bmin.detail.cpp $(BUILD)/bmin.detail.o | $(BUILD)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+$(BUILD)/bmin.dynarray.o: bmin.dynarray.cppm $(BUILD)/bmin.core.o | $(BUILD)
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
 
-$(BUILD)/bmin.dynarray.o: bmin.dynarray.cppm $(BUILD)/bmin.detail.o | $(BUILD)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+$(BUILD)/bmin.unique_ptr.o: bmin.unique_ptr.cppm $(BUILD)/bmin.core.o | $(BUILD)
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
 
-$(BUILD)/bmin.unique_ptr.o: bmin.unique_ptr.cppm $(BUILD)/bmin.detail.o | $(BUILD)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
-
-$(BUILD)/bmin.string.o: bmin.string.cppm $(BUILD)/bmin.dynarray.o $(BUILD)/bmin.detail.o | $(BUILD)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+$(BUILD)/bmin.string.o: bmin.string.cppm $(BUILD)/bmin.dynarray.o $(BUILD)/bmin.core.o | $(BUILD)
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
 
 $(BUILD)/bmin.string-impl.o: bmin.string.cpp $(BUILD)/bmin.string.o | $(BUILD)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(INCLUDES) -c $< -o $@
 
-$(BUILD)/bmin.list.o: bmin.list.cppm $(BUILD)/bmin.detail.o | $(BUILD)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+$(BUILD)/bmin.list.o: bmin.list.cppm $(BUILD)/bmin.core.o | $(BUILD)
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
 
 $(BUILD)/bmin.queue.o: bmin.queue.cppm $(BUILD)/bmin.dynarray.o | $(BUILD)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
 
 $(BUILD)/bmin.hash.o: bmin.hash.cppm $(BUILD)/bmin.string.o | $(BUILD)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
 
 $(BUILD)/bmin.map.o: bmin.map.cppm $(BUILD)/bmin.hash.o $(BUILD)/bmin.list.o $(BUILD)/bmin.dynarray.o | $(BUILD)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
 
 $(BUILD)/bmin.stringstream.o: bmin.stringstream.cppm $(BUILD)/bmin.string.o | $(BUILD)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
 
 $(BUILD)/bmin.stringstream-impl.o: bmin.stringstream.cpp $(BUILD)/bmin.stringstream.o | $(BUILD)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 $(BUILD)/bmin.string_interop.o: bmin.string_interop.cppm $(BUILD)/bmin.string.o | $(BUILD)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
 
 $(BUILD)/bmin.string_interop-impl.o: bmin.string_interop.cpp $(BUILD)/bmin.string_interop.o | $(BUILD)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 $(BUILD)/bmin.containers.o: bmin.containers.cppm \
 		$(BUILD)/bmin.string.o $(BUILD)/bmin.unique_ptr.o $(BUILD)/bmin.dynarray.o \
 		$(BUILD)/bmin.list.o $(BUILD)/bmin.queue.o $(BUILD)/bmin.hash.o $(BUILD)/bmin.map.o \
 		$(BUILD)/bmin.stringstream.o | $(BUILD)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) $(INCLUDES) -c $< -o $@
 
 MODULE_OBJS = \
-	$(BUILD)/bmin.types.o \
-	$(BUILD)/bmin.detail.o \
-	$(BUILD)/bmin.detail-impl.o \
+	$(BUILD)/bmin.core.o \
+	$(BUILD)/bmin.core-impl.o \
 	$(BUILD)/bmin.dynarray.o \
 	$(BUILD)/bmin.unique_ptr.o \
 	$(BUILD)/bmin.string.o \
@@ -99,10 +95,10 @@ $(LIB_MODULES): $(MODULE_OBJS) | $(BUILD)
 lib: $(LIB_MODULES)
 
 $(BUILD)/smoke.o: smoke.cpp $(MODULE_OBJS) | $(BUILD)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 $(BUILD)/smoke: $(BUILD)/smoke.o $(LIB_MODULES)
-	$(CXX) $(CXXFLAGS) -o $@ $(BUILD)/smoke.o $(LIB_MODULES)
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) -o $@ $(BUILD)/smoke.o $(LIB_MODULES)
 
 smoke: $(BUILD)/smoke
 	./$(BUILD)/smoke
@@ -115,9 +111,8 @@ ensure-lib:
 
 MODULE_SOURCES = \
 	assert.h \
-	bmin.types.cppm \
-	bmin.detail.cppm \
-	bmin.detail.cpp \
+	bmin.core.cppm \
+	bmin.core.cpp \
 	bmin.dynarray.cppm \
 	bmin.unique_ptr.cppm \
 	bmin.string.cppm \
@@ -139,7 +134,7 @@ install dist: $(LIB_MODULES)
 	@mkdir -p $(INSTALL_DIR)/modules/make
 	cp -f $(LIB_MODULES) $(INSTALL_DIR)/lib/
 	cp -f $(MODULE_SOURCES) $(INSTALL_DIR)/modules/
-	cp -f make/use.mk make/build-bmi.mk $(INSTALL_DIR)/modules/make/
+	cp -f make/config.mk make/use.mk make/build-bmi.mk $(INSTALL_DIR)/modules/make/
 	cp -f MODULES.md $(INSTALL_DIR)/modules/README.md
 	@echo "Installed libbmin_modules.a, module sources, and make/ helpers."
 
@@ -163,7 +158,7 @@ $(BUILD)/headers/bench_workers.o: $(BENCH)/bench_workers.cpp | $(BUILD)/headers
 	$(CXX) -Wall -std=c++23 -O0 -g $(HDR_INC) -c $< -o $@
 
 $(BUILD)/modules/%.o: $(BENCH)/modules/%.cpp $(MODULE_OBJS) | $(BUILD)/modules
-	$(CXX) $(CXXFLAGS) -O0 $(MOD_INC) -c $< -o $@
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) -O0 $(MOD_INC) -c $< -o $@
 
 $(BUILD)/modules/main.o: $(BENCH)/main.cpp | $(BUILD)/modules
 	$(CXX) -Wall -std=c++23 -O0 -g $(MOD_INC) -c $< -o $@
@@ -175,7 +170,7 @@ $(BUILD)/bench-headers: $(HDR_OBJS) ensure-lib
 	$(CXX) -Wall -std=c++23 -O0 -g -o $@ $(HDR_OBJS) $(LIB_A)
 
 $(BUILD)/bench-modules: $(MOD_OBJS) $(LIB_MODULES)
-	$(CXX) $(CXXFLAGS) -O0 -o $@ $(MOD_OBJS) $(LIB_MODULES)
+	$(CXX) $(BMIN_MODULE_CXXFLAGS) -O0 -o $@ $(MOD_OBJS) $(LIB_MODULES)
 
 define TIME_CMD
 if command -v /usr/bin/time >/dev/null 2>&1; then \

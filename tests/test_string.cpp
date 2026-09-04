@@ -1,7 +1,11 @@
 #include "TestHarness.h"
 #include <string_view>
 
+#ifdef BMIN_TEST_MODULES
 import bmin.containers;
+#else
+#include "All.h"
+#endif
 
 SUITE(test_string) {
   bmin::String a("hello");

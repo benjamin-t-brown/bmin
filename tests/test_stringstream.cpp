@@ -1,7 +1,11 @@
 #include "TestHarness.h"
 #include <cstddef>
 
+#ifdef BMIN_TEST_MODULES
 import bmin.containers;
+#else
+#include "All.h"
+#endif
 
 SUITE(test_stringstream) {
   bmin::StringStream ss;

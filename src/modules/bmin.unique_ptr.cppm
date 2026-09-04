@@ -2,7 +2,7 @@ module;
 #include "assert.h"
 
 export module bmin.unique_ptr;
-export import bmin.detail;
+export import bmin.core;
 
 export namespace bmin {
 

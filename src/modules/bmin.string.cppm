@@ -4,7 +4,7 @@ module;
 #include "assert.h"
 
 export module bmin.string;
-export import bmin.detail;
+export import bmin.core;
 export import bmin.dynarray;
 
 export namespace bmin {

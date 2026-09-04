@@ -2,16 +2,16 @@
 #
 #   make -f path/to/bmin/modules/make/build-bmi.mk BMIN_MOD=path/to/bmin/modules
 
-CXX ?= g++
 BMIN_MOD ?= .
-FLAGS = -Wall -std=c++23 -g -fmodules-ts -I$(BMIN_MOD)
+include $(dir $(lastword $(MAKEFILE_LIST)))config.mk
+
+FLAGS = $(BMIN_MODULE_CXXFLAGS) $(BMIN_MODULE_INTERFACE_FLAGS) -I$(BMIN_MOD)
 OBJDIR = .bmin-bmi
 
 .PHONY: all clean
 
 all: \
-	$(OBJDIR)/bmin.types.o \
-	$(OBJDIR)/bmin.detail.o \
+	$(OBJDIR)/bmin.core.o \
 	$(OBJDIR)/bmin.dynarray.o \
 	$(OBJDIR)/bmin.unique_ptr.o \
 	$(OBJDIR)/bmin.string.o \
@@ -28,22 +28,19 @@ all: \
 $(OBJDIR):
 	@mkdir -p $@
 
-$(OBJDIR)/bmin.types.o: $(BMIN_MOD)/bmin.types.cppm | $(OBJDIR)
+$(OBJDIR)/bmin.core.o: $(BMIN_MOD)/bmin.core.cppm | $(OBJDIR)
 	$(CXX) $(FLAGS) -c $< -o $@
 
-$(OBJDIR)/bmin.detail.o: $(BMIN_MOD)/bmin.detail.cppm $(OBJDIR)/bmin.types.o | $(OBJDIR)
+$(OBJDIR)/bmin.dynarray.o: $(BMIN_MOD)/bmin.dynarray.cppm $(OBJDIR)/bmin.core.o | $(OBJDIR)
 	$(CXX) $(FLAGS) -c $< -o $@
 
-$(OBJDIR)/bmin.dynarray.o: $(BMIN_MOD)/bmin.dynarray.cppm $(OBJDIR)/bmin.detail.o | $(OBJDIR)
-	$(CXX) $(FLAGS) -c $< -o $@
-
-$(OBJDIR)/bmin.unique_ptr.o: $(BMIN_MOD)/bmin.unique_ptr.cppm $(OBJDIR)/bmin.detail.o | $(OBJDIR)
+$(OBJDIR)/bmin.unique_ptr.o: $(BMIN_MOD)/bmin.unique_ptr.cppm $(OBJDIR)/bmin.core.o | $(OBJDIR)
 	$(CXX) $(FLAGS) -c $< -o $@
 
 $(OBJDIR)/bmin.string.o: $(BMIN_MOD)/bmin.string.cppm $(OBJDIR)/bmin.dynarray.o | $(OBJDIR)
 	$(CXX) $(FLAGS) -c $< -o $@
 
-$(OBJDIR)/bmin.list.o: $(BMIN_MOD)/bmin.list.cppm $(OBJDIR)/bmin.detail.o | $(OBJDIR)
+$(OBJDIR)/bmin.list.o: $(BMIN_MOD)/bmin.list.cppm $(OBJDIR)/bmin.core.o | $(OBJDIR)
 	$(CXX) $(FLAGS) -c $< -o $@
 
 $(OBJDIR)/bmin.queue.o: $(BMIN_MOD)/bmin.queue.cppm $(OBJDIR)/bmin.dynarray.o | $(OBJDIR)

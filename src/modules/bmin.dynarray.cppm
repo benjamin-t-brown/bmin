@@ -4,7 +4,7 @@ module;
 #include "assert.h"
 
 export module bmin.dynarray;
-export import bmin.detail;
+export import bmin.core;
 
 export namespace bmin {
 
@@ -158,21 +158,22 @@ template <typename T>
 void DynArray<T>::reallocate(std::size_t newCap) {
   if (newCap == 0) {
     for (std::size_t i = 0; i < _size; ++i) {
-      storage::destroyAt(_data + i);
+      detail::storage::destroyAt(_data + i);
     }
-    storage::deallocateRaw(_data);
+    detail::storage::deallocateRaw(_data);
     _data = nullptr;
     _capacity = 0;
     _size = 0;
     return;
   }
 
-  T* newData = static_cast<T*>(storage::allocateRaw(newCap * sizeof(T)));
+  T* newData =
+      static_cast<T*>(detail::storage::allocateRaw(newCap * sizeof(T)));
   for (std::size_t i = 0; i < _size; ++i) {
-    storage::constructAt(newData + i, bmin::move(_data[i]));
-    storage::destroyAt(_data + i);
+    detail::storage::constructAt(newData + i, bmin::move(_data[i]));
+    detail::storage::destroyAt(_data + i);
   }
-  storage::deallocateRaw(_data);
+  detail::storage::deallocateRaw(_data);
   _data = newData;
   _capacity = newCap;
 }
@@ -185,9 +186,10 @@ DynArray<T>::DynArray(std::size_t count) : _size(count), _capacity(count) {
   if (count == 0) {
     return;
   }
-  _data = static_cast<T*>(storage::allocateRaw(count * sizeof(T)));
+  _data =
+      static_cast<T*>(detail::storage::allocateRaw(count * sizeof(T)));
   for (std::size_t i = 0; i < count; ++i) {
-    storage::constructAt(_data + i);
+    detail::storage::constructAt(_data + i);
   }
 }
 
@@ -238,7 +240,7 @@ void DynArray<T>::reserve(std::size_t n) {
 template <typename T>
 void DynArray<T>::clear() {
   for (std::size_t i = 0; i < _size; ++i) {
-    storage::destroyAt(_data + i);
+    detail::storage::destroyAt(_data + i);
   }
   _size = 0;
 }
@@ -248,12 +250,12 @@ void DynArray<T>::resize(std::size_t n) {
   if (n > _size) {
     reserve(n);
     for (std::size_t i = _size; i < n; ++i) {
-      storage::constructAt(_data + i);
+      detail::storage::constructAt(_data + i);
     }
     _size = n;
   } else if (n < _size) {
     for (std::size_t i = n; i < _size; ++i) {
-      storage::destroyAt(_data + i);
+      detail::storage::destroyAt(_data + i);
     }
     _size = n;
   }
@@ -265,12 +267,12 @@ void DynArray<T>::resize(std::size_t n, const T& value) {
   if (n > _size) {
     reserve(n);
     for (std::size_t i = oldSize; i < n; ++i) {
-      storage::constructAt(_data + i, value);
+      detail::storage::constructAt(_data + i, value);
     }
     _size = n;
   } else if (n < _size) {
     for (std::size_t i = n; i < _size; ++i) {
-      storage::destroyAt(_data + i);
+      detail::storage::destroyAt(_data + i);
     }
     _size = n;
   }
@@ -285,7 +287,7 @@ typename DynArray<T>::Iterator DynArray<T>::insert(Iterator pos, const T& value)
     reallocate(newCap);
     pos = _data + index;
   }
-  storage::constructAt(_data + _size);
+  detail::storage::constructAt(_data + _size);
   for (std::size_t i = _size; i > index; --i) {
     _data[i] = bmin::move(_data[i - 1]);
   }
@@ -303,7 +305,7 @@ typename DynArray<T>::Iterator DynArray<T>::insert(Iterator pos, T&& value) {
     reallocate(newCap);
     pos = _data + index;
   }
-  storage::constructAt(_data + _size);
+  detail::storage::constructAt(_data + _size);
   for (std::size_t i = _size; i > index; --i) {
     _data[i] = bmin::move(_data[i - 1]);
   }
@@ -320,7 +322,7 @@ typename DynArray<T>::Iterator DynArray<T>::erase(Iterator pos) {
     _data[i] = bmin::move(_data[i + 1]);
   }
   --_size;
-  storage::destroyAt(_data + _size);
+  detail::storage::destroyAt(_data + _size);
   return _data + index;
 }
 
@@ -337,7 +339,7 @@ typename DynArray<T>::Iterator DynArray<T>::erase(Iterator first, Iterator last)
     _data[i] = bmin::move(_data[i + count]);
   }
   for (std::size_t i = _size - count; i < _size; ++i) {
-    storage::destroyAt(_data + i);
+    detail::storage::destroyAt(_data + i);
   }
   _size -= count;
   return _data + firstIndex;
@@ -355,14 +357,14 @@ std::size_t DynArray<T>::eraseIf(Pred pred) {
   for (std::size_t read = 0; read < _size; ++read) {
     if (!pred(_data[read])) {
       if (write != read) {
-        storage::destroyAt(_data + write);
+        detail::storage::destroyAt(_data + write);
         _data[write] = bmin::move(_data[read]);
       }
       ++write;
     }
   }
   for (std::size_t i = write; i < _size; ++i) {
-    storage::destroyAt(_data + i);
+    detail::storage::destroyAt(_data + i);
   }
   const std::size_t removed = _size - write;
   _size = write;
@@ -396,7 +398,8 @@ void DynArray<T>::emplaceBack(Args&&... args) {
     std::size_t newCap = _capacity ? _capacity * 2 : 1;
     reallocate(newCap);
   }
-  storage::constructAt(_data + _size, bmin::forward<Args>(args)...);
+  detail::storage::constructAt(_data + _size,
+                               bmin::forward<Args>(args)...);
   ++_size;
 }
 
@@ -404,7 +407,7 @@ template <typename T>
 void DynArray<T>::popBack() {
   BMIN_ASSERT(_size > 0);
   --_size;
-  storage::destroyAt(_data + _size);
+  detail::storage::destroyAt(_data + _size);
 }
 
 template <typename T>

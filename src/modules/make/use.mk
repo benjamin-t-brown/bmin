@@ -17,6 +17,7 @@
 # libbmin_modules.a is for linking. BMIs are compiler-local (gcm.cache).
 
 _BMIN_MAKE_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+include $(_BMIN_MAKE_DIR)/config.mk
 
 # .cppm sources live in the parent modules/ directory.
 BMIN_MODULES_DIR := $(abspath $(_BMIN_MAKE_DIR)/..)
@@ -30,7 +31,7 @@ else
   BMIN_SRC_DIR ?= $(abspath $(BMIN_MODULES_DIR)/../src)
 endif
 
-BMIN_CXXFLAGS ?= -Wall -std=c++23 -g -fmodules-ts -I$(BMIN_MODULES_DIR)
+BMIN_CXXFLAGS ?= $(BMIN_MODULE_CXXFLAGS) -I$(BMIN_MODULES_DIR)
 BMIN_LDLIBS ?= -L$(BMIN_ROOT)/lib -lbmin_modules
 
 ifeq ($(OS),Windows_NT)
@@ -50,10 +51,17 @@ bmin-ensure-lib: $(BMIN_LIB)
 
 $(BMIN_LIB):
 	@echo "Building bmin modules library at $(BMIN_LIB)"
-	$(MAKE) -C $(BMIN_SRC_DIR) native
+	$(MAKE) -C $(BMIN_SRC_DIR) native \
+		CXX="$(CXX)" \
+		BMIN_MODULE_CXXFLAGS="$(BMIN_MODULE_CXXFLAGS)" \
+		BMIN_MODULE_INTERFACE_FLAGS="$(BMIN_MODULE_INTERFACE_FLAGS)"
 
 bmin-bmi: $(BMIN_BMI_STAMP)
 
 $(BMIN_BMI_STAMP): $(BMIN_LIB)
-	$(MAKE) -f $(_BMIN_MAKE_DIR)/build-bmi.mk BMIN_MOD=$(BMIN_MODULES_DIR)
+	$(MAKE) -f $(_BMIN_MAKE_DIR)/build-bmi.mk \
+		BMIN_MOD=$(BMIN_MODULES_DIR) \
+		CXX="$(CXX)" \
+		BMIN_MODULE_CXXFLAGS="$(BMIN_MODULE_CXXFLAGS)" \
+		BMIN_MODULE_INTERFACE_FLAGS="$(BMIN_MODULE_INTERFACE_FLAGS)"
 	@touch $(BMIN_BMI_STAMP)

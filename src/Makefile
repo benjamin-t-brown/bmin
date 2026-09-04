@@ -9,6 +9,8 @@ lib/internal/Policy.cpp
 TARGET ?= native
 BASE_BUILD_DIR = build
 
+include modules/make/config.mk
+
 ifeq ($(V),1)
   Q =
 else
@@ -17,13 +19,13 @@ endif
 
 DEBUG=true
 ifeq ($(TARGET),wasm)
-    INCLUDES= -I.
+    INCLUDES= -iquote .
     FLAGS = -Wall -std=c++23 -Oz -flto
     LIBS =
     CXX = em++
     AR = emar
 else
-    INCLUDES += -I.
+    INCLUDES += -iquote .
     FLAGS += -Wall -std=c++23
     AR ?= ar
     ifeq ($(OS),Windows_NT)
