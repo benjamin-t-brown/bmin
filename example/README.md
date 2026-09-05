@@ -1,6 +1,6 @@
 # example — word count with bmin headers
 
-Same demo as `module_example`, but using the classic `#include` API and
+Same demo as `../example_module`, but using the classic `#include` API and
 `libbmin.a` (no C++ modules / BMIs).
 
 ## Build / run

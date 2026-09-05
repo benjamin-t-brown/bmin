@@ -16,6 +16,7 @@ src/modules/gcm.cache
 gcm.cache
 tests/modbuild
 tests/gcm.cache
+tests/build
 .source_ok
 dist
 tests/test_runner
@@ -26,11 +27,11 @@ bench/std/bench
 bench/std/bench.exe
 bench/bmin/*.o
 bench/std/*.o
-module_example/.bmin-bmi
-module_example/gcm.cache
-module_example/wordcount
-module_example/wordcount.exe
-module_example/main.o
+example_module/.bmin-bmi
+example_module/gcm.cache
+example_module/wordcount
+example_module/wordcount.exe
+example_module/main.o
 example/wordcount
 example/wordcount.exe
 example/main.o

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Generate / merge compile_commands.json entries for both bmin APIs (clangd).
+# Generate compile_commands.json entries for both bmin APIs (clangd).
 #
 # Usage:
 #   ./compile-commands-module.sh
@@ -69,7 +69,7 @@ src_dir = root / "src"
 classic_dir = src_dir / "lib"
 tests_dir = root / "tests"
 header_example_dir = root / "example"
-module_example_dirs = [root / "example" / "module_example", root / "example_module"]
+module_example_dir = root / "example_module"
 
 # Interface units clangd must see (named modules).
 IFACES = [
@@ -150,10 +150,9 @@ if header_example_dir.is_dir():
     if main.is_file():
         db.append(entry(header_example_dir, main, CLASSIC_FLAGS))
 
-for example_dir in module_example_dirs:
-    main = example_dir / "main.cpp"
-    if main.is_file():
-        db.append(entry(example_dir, main, MODULE_FLAGS))
+main = module_example_dir / "main.cpp"
+if main.is_file():
+    db.append(entry(module_example_dir, main, MODULE_FLAGS))
 
 if tests_dir.is_dir():
     for src in sorted(tests_dir.glob("test_*.cpp")):
@@ -172,24 +171,8 @@ if tests_dir.is_dir():
         ))
 
 out = root / "compile_commands.json"
-existing = []
-if out.is_file():
-    try:
-        existing = json.loads(out.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        existing = []
-
-# Drop previous entries for the same files, then append the refreshed bmin DB.
-bmin_files = {e["file"].replace("\\", "/") for e in db}
-merged = [
-    e
-    for e in existing
-    if e.get("file", "").replace("\\", "/") not in bmin_files
-]
-merged.extend(db)
-
-out.write_text(json.dumps(merged, indent=1) + "\n", encoding="utf-8")
-print(f"Wrote {out} ({len(merged)} entries, {len(db)} bmin-related)")
+out.write_text(json.dumps(db, indent=1) + "\n", encoding="utf-8")
+print(f"Wrote {out} ({len(db)} entries)")
 print(f"Compiler driver: {compiler}")
 print("Restart clangd after running this (Command Palette: clangd: Restart language server).")
 PY

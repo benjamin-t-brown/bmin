@@ -1,5 +1,5 @@
 // Word-count example: bmin headers + std::filesystem.
-// Modules twin: ../module_example/main.cpp
+// Modules twin: ../example_module/main.cpp
 //
 //   make run
 //   ./wordcount sample.txt

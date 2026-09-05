@@ -10,7 +10,7 @@ CompileFlags:
     - -Isrc
 ---
 If:
-  PathMatch: (src/modules|module_example|tests)/.*
+  PathMatch: (src/modules|example_module|tests)/.*
 CompileFlags:
   Add:
     - -Isrc/modules
