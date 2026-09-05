@@ -4,15 +4,7 @@
 #include "./Types.h" // IWYU pragma: keep
 #include "./Utility.h"
 
-// Minimal replacements for <new> (global allocators are provided by libc++ / libstdc++).
-void* operator new(size_t bytes);
-void operator delete(void* p) noexcept;
-
-#if defined(__has_include) && __has_include(<new>)
 #include <new>
-#else
-inline void* operator new(size_t, void* p) noexcept { return p; }
-#endif
 
 namespace bmin {
 namespace storage {
@@ -30,6 +22,31 @@ inline void* allocateRaw(size_t bytes) {
 
 inline void deallocateRaw(void* p) noexcept {
   ::operator delete(p);
+}
+
+template <typename T>
+T* allocate(size_t count) {
+  if (count == 0) {
+    return nullptr;
+  }
+  if (count > static_cast<size_t>(-1) / sizeof(T)) {
+    fatal();
+  }
+  const size_t bytes = count * sizeof(T);
+  if constexpr (alignof(T) > __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
+    return static_cast<T*>(
+        ::operator new(bytes, std::align_val_t(alignof(T))));
+  }
+  return static_cast<T*>(allocateRaw(bytes));
+}
+
+template <typename T>
+void deallocate(T* p) noexcept {
+  if constexpr (alignof(T) > __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
+    ::operator delete(p, std::align_val_t(alignof(T)));
+  } else {
+    deallocateRaw(p);
+  }
 }
 
 template <typename T, typename... Args>

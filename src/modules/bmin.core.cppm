@@ -66,6 +66,31 @@ inline void deallocateRaw(void* allocation) noexcept {
   ::operator delete(allocation);
 }
 
+template <typename T>
+T* allocate(std::size_t count) {
+  if (count == 0) {
+    return nullptr;
+  }
+  if (count > static_cast<std::size_t>(-1) / sizeof(T)) {
+    fatal();
+  }
+  const std::size_t bytes = count * sizeof(T);
+  if constexpr (alignof(T) > __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
+    return static_cast<T*>(
+        ::operator new(bytes, std::align_val_t(alignof(T))));
+  }
+  return static_cast<T*>(allocateRaw(bytes));
+}
+
+template <typename T>
+void deallocate(T* allocation) noexcept {
+  if constexpr (alignof(T) > __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
+    ::operator delete(allocation, std::align_val_t(alignof(T)));
+  } else {
+    deallocateRaw(allocation);
+  }
+}
+
 template <typename T, typename... Args>
 T* constructAt(T* location, Args&&... args) {
   return new (location) T(bmin::forward<Args>(args)...);

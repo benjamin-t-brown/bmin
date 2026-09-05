@@ -146,10 +146,30 @@ template but do not emit duplicate object code.
   instantiates in your translation unit automatically.
 - `T` must meet the usual container requirements (constructible, movable or
   copyable as needed).
-- `Map` keys need `operator==` and a `bmin::Hash<K>`. Trivially-copyable keys
-  (POD structs, enums, pointers) use the default byte hash; specialize
-  `bmin::Hash<T>` for other key types (same idea as `std::hash`).
+- `Map` keys need `operator==` and a `bmin::Hash<K>`. Integral, enum, pointer,
+  and `String` keys are supported directly. Custom structures must specialize
+  `bmin::Hash<T>` so hashing follows their logical equality and never depends
+  on object padding (the same idea as specializing `std::hash`).
 - Link `-lbmin` for `String` and the pre-built instantiations.
+
+```cpp
+struct Point {
+  int x;
+  int y;
+
+  bool operator==(const Point& other) const {
+    return x == other.x && y == other.y;
+  }
+};
+
+template <>
+struct bmin::Hash<Point> {
+  size_t operator()(const Point& point) const {
+    return bmin::Hash<int>{}(point.x) ^
+           (bmin::Hash<int>{}(point.y) + 0x9e3779b9u);
+  }
+};
+```
 
 **Optional:** add a type to `Instantiations.cpp` (and `extern template` in the
 header) when you want it compiled only into `libbmin.a` and shared across many

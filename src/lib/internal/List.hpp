@@ -71,13 +71,23 @@ List<T>& List<T>::operator=(List o) {
 }
 
 template <typename T>
-typename List<T>::Iterator List<T>::begin() const {
+typename List<T>::Iterator List<T>::begin() {
   return Iterator(_head);
 }
 
 template <typename T>
-typename List<T>::Iterator List<T>::end() const {
+typename List<T>::Iterator List<T>::end() {
   return Iterator(nullptr);
+}
+
+template <typename T>
+typename List<T>::ConstIterator List<T>::begin() const {
+  return ConstIterator(_head);
+}
+
+template <typename T>
+typename List<T>::ConstIterator List<T>::end() const {
+  return ConstIterator(nullptr);
 }
 
 template <typename T>
@@ -164,6 +174,18 @@ const T& List<T>::front() const {
 }
 
 template <typename T>
+T& List<T>::back() {
+  BMIN_ASSERT(_tail);
+  return _tail->value;
+}
+
+template <typename T>
+const T& List<T>::back() const {
+  BMIN_ASSERT(_tail);
+  return _tail->value;
+}
+
+template <typename T>
 void List<T>::splice(Iterator pos, List& other) {
   if (other.empty()) {
     return;
@@ -200,6 +222,51 @@ void List<T>::splice(Iterator pos, List& other) {
 }
 
 template <typename T>
+void List<T>::splice(Iterator pos, List& other, Iterator it) {
+  Node* node = it._node;
+  if (!node) {
+    return;
+  }
+  if (this == &other && (pos._node == node || pos._node == node->next)) {
+    return;
+  }
+
+  if (node->prev) {
+    node->prev->next = node->next;
+  } else {
+    other._head = node->next;
+  }
+  if (node->next) {
+    node->next->prev = node->prev;
+  } else {
+    other._tail = node->prev;
+  }
+  --other._size;
+
+  Node* before = pos._node;
+  if (!before) {
+    node->prev = _tail;
+    node->next = nullptr;
+    if (_tail) {
+      _tail->next = node;
+    } else {
+      _head = node;
+    }
+    _tail = node;
+  } else {
+    node->prev = before->prev;
+    node->next = before;
+    if (before->prev) {
+      before->prev->next = node;
+    } else {
+      _head = node;
+    }
+    before->prev = node;
+  }
+  ++_size;
+}
+
+template <typename T>
 typename List<T>::Iterator List<T>::erase(Iterator it) {
   Node* next = it._node ? it._node->next : nullptr;
   if (it._node) {
@@ -210,7 +277,7 @@ typename List<T>::Iterator List<T>::erase(Iterator it) {
 
 template <typename T>
 bool List<T>::contains(const T& value) const {
-  for (Iterator it = begin(); it != end(); ++it) {
+  for (ConstIterator it = begin(); it != end(); ++it) {
     if (*it == value) {
       return true;
     }
@@ -239,6 +306,30 @@ bool List<T>::Iterator::operator==(Iterator o) const {
 
 template <typename T>
 bool List<T>::Iterator::operator!=(Iterator o) const {
+  return !(*this == o);
+}
+
+template <typename T>
+List<T>::ConstIterator::ConstIterator(const Node* n) : _node(n) {}
+
+template <typename T>
+const T& List<T>::ConstIterator::operator*() const {
+  return _node->value;
+}
+
+template <typename T>
+typename List<T>::ConstIterator& List<T>::ConstIterator::operator++() {
+  _node = _node->next;
+  return *this;
+}
+
+template <typename T>
+bool List<T>::ConstIterator::operator==(ConstIterator o) const {
+  return _node == o._node;
+}
+
+template <typename T>
+bool List<T>::ConstIterator::operator!=(ConstIterator o) const {
   return !(*this == o);
 }
 

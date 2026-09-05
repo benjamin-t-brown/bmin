@@ -20,6 +20,11 @@ StringStream& StringStream::operator<<(const String& s) {
   return *this;
 }
 
+StringStream& StringStream::operator<<(char value) {
+  _buf.append(value);
+  return *this;
+}
+
 StringStream& StringStream::operator<<(int value) {
   _buf.append(String::fromInt(value));
   return *this;

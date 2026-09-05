@@ -11,6 +11,7 @@
 #include <cerrno>
 #include <cfloat>
 #include <climits>
+#include <cstdint>
 
 namespace bmin {
 
@@ -31,6 +32,15 @@ void bytesCopy(char* dst, const char* src, size_t n) {
   for (size_t i = 0; i < n; ++i) {
     dst[i] = src[i];
   }
+}
+
+bool pointsIntoBuffer(const char* source, const char* data, size_t capacity) {
+  if (!source || !data) {
+    return false;
+  }
+  const uintptr_t address = reinterpret_cast<uintptr_t>(source);
+  const uintptr_t begin = reinterpret_cast<uintptr_t>(data);
+  return address >= begin && address <= begin + capacity;
 }
 
 int bytesCompare(const char* a, size_t an, const char* b, size_t bn) {
@@ -117,6 +127,9 @@ void String::growToFit(size_t minCapacity) {
   }
   size_t newCap = _capacity ? _capacity : 1;
   while (newCap < minCapacity) {
+    if (newCap > (static_cast<size_t>(-1) - 1) / 2) {
+      fatal();
+    }
     newCap *= 2;
   }
   char* buf = new char[newCap + 1];
@@ -221,28 +234,38 @@ void String::shrinkToFit() {
 }
 
 char& String::at(size_t i) {
-  BMIN_ASSERT(i < _size);
+  if (i >= _size) {
+    fatal();
+  }
   return _data[i];
 }
 
 const char& String::at(size_t i) const {
-  BMIN_ASSERT(i < _size);
+  if (i >= _size) {
+    fatal();
+  }
   return _data[i];
 }
 
 String& String::assign(const char* s) {
-  clear();
-  return append(s);
+  return assign(s, cstrLen(s));
 }
 
 String& String::assign(const char* s, size_t len) {
+  if (pointsIntoBuffer(s, _data, _capacity)) {
+    String copy(s, len);
+    *this = bmin::move(copy);
+    return *this;
+  }
   clear();
   return append(s, len);
 }
 
 String& String::assign(const String& s) {
-  clear();
-  return append(s);
+  if (this == &s) {
+    return *this;
+  }
+  return assign(s.data(), s.size());
 }
 
 String& String::append(const char* s) {
@@ -256,8 +279,17 @@ String& String::append(const char* s, size_t len) {
   if (!s || len == 0) {
     return *this;
   }
+  if (len > static_cast<size_t>(-1) - _size) {
+    fatal();
+  }
+  const bool aliased = pointsIntoBuffer(s, _data, _capacity);
+  const size_t sourceOffset =
+      aliased ? static_cast<size_t>(s - _data) : 0;
   size_t newSize = _size + len;
   growToFit(newSize);
+  if (aliased) {
+    s = _data + sourceOffset;
+  }
   bytesCopy(_data + _size, s, len);
   _size = newSize;
   _data[_size] = '\0';
@@ -280,6 +312,13 @@ String& String::insert(size_t pos, const char* s, size_t len) {
   }
   if (!s || len == 0) {
     return *this;
+  }
+  if (pointsIntoBuffer(s, _data, _capacity)) {
+    String copy(s, len);
+    return insert(pos, copy.data(), copy.size());
+  }
+  if (len > static_cast<size_t>(-1) - _size) {
+    fatal();
   }
   size_t oldSize = _size;
   size_t newSize = oldSize + len;

@@ -174,4 +174,24 @@ SUITE(test_string) {
   CHECK(s.capacity() >= 64u);
   s.shrinkToFit();
   CHECK_EQ(s.capacity(), s.size());
+
+  bmin::String selfAppend("abc");
+  selfAppend.append(selfAppend);
+  CHECK_EQ(selfAppend, "abcabc");
+
+  bmin::String selfAssign("unchanged");
+  selfAssign.assign(selfAssign);
+  CHECK_EQ(selfAssign, "unchanged");
+
+  bmin::String innerAssign("prefix-value");
+  innerAssign.assign(innerAssign.data() + 7, 5);
+  CHECK_EQ(innerAssign, "value");
+
+  bmin::String selfInsert("abcd");
+  selfInsert.insert(2, selfInsert);
+  CHECK_EQ(selfInsert, "ababcdcd");
+
+  bmin::String innerInsert("abcdef");
+  innerInsert.insert(1, innerInsert.data() + 2, 3);
+  CHECK_EQ(innerInsert, "acdebcdef");
 }

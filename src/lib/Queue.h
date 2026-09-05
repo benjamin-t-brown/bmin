@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DynArray.h"
+#include "String.h"
 
 #include "./internal/Types.h"  // IWYU pragma: keep
 
@@ -8,15 +8,20 @@ namespace bmin {
 
 template <typename T>
 class Queue {
-  DynArray<T> _buf;
+  T* _data = nullptr;
   size_t _head = 0;
   size_t _tail = 0;
   size_t _count = 0;
+  size_t _capacity = 0;
 
   void grow();
 
 public:
   Queue() = default;
+  Queue(const Queue& o);
+  Queue(Queue&& o) noexcept;
+  Queue& operator=(Queue o);
+  ~Queue();
 
   void push(const T& value);
   void push(T&& value);
@@ -27,6 +32,8 @@ public:
   void pop();
   T& front();
   const T& front() const;
+  T& back();
+  const T& back() const;
 
   bool empty() const {
     return _count == 0;

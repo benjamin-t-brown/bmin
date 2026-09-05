@@ -14,6 +14,8 @@ SUITE(test_list) {
   list.pushFront(0);
   list.pushBack(2);
   CHECK_EQ(list.size(), 3u);
+  CHECK_EQ(list.front(), 0);
+  CHECK_EQ(list.back(), 2);
 
   list.popFront();
   CHECK_EQ(list.size(), 2u);
@@ -27,6 +29,11 @@ SUITE(test_list) {
   list.popBack();
   CHECK_EQ(list.size(), 1u);
   CHECK_EQ(*list.begin(), 1);
+  CHECK_EQ(list.back(), 1);
+
+  const bmin::List<int>& constList = list;
+  CHECK_EQ(constList.front(), 1);
+  CHECK_EQ(constList.back(), 1);
 
   bmin::List<bmin::String> names;
   names.pushBack(bmin::String("ann"));

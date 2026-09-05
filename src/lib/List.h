@@ -20,6 +20,7 @@ class List {
 
 public:
   class Iterator;
+  class ConstIterator;
 
   List();
   List(std::initializer_list<T> init);
@@ -36,8 +37,10 @@ public:
     return _size == 0;
   }
 
-  Iterator begin() const;
-  Iterator end() const;
+  Iterator begin();
+  Iterator end();
+  ConstIterator begin() const;
+  ConstIterator end() const;
 
   void clear();
 
@@ -51,8 +54,11 @@ public:
 
   T& front();
   const T& front() const;
+  T& back();
+  const T& back() const;
 
   void splice(Iterator pos, List& other);
+  void splice(Iterator pos, List& other, Iterator it);
 
   Iterator erase(Iterator it);
 
@@ -75,6 +81,24 @@ public:
 
   bool operator==(Iterator o) const;
   bool operator!=(Iterator o) const;
+};
+
+template <typename T>
+class List<T>::ConstIterator {
+  const Node* _node = nullptr;
+
+  explicit ConstIterator(const Node* n);
+
+  friend class List;
+
+public:
+  ConstIterator() = default;
+
+  const T& operator*() const;
+  ConstIterator& operator++();
+
+  bool operator==(ConstIterator o) const;
+  bool operator!=(ConstIterator o) const;
 };
 
 extern template class List<int>;

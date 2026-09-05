@@ -23,4 +23,8 @@ SUITE(test_stringstream) {
   ss.clear();
   ss << 2.5f << "," << 3.25;
   CHECK_EQ(ss.str(), "2.5,3.25");
+
+  ss.clear();
+  ss << 'A' << ':' << 'z';
+  CHECK_EQ(ss.str(), "A:z");
 }

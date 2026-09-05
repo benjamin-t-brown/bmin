@@ -18,6 +18,7 @@ public:
 
   StringStream& operator<<(const char* s);
   StringStream& operator<<(const String& s);
+  StringStream& operator<<(char value);
   StringStream& operator<<(int value);
   StringStream& operator<<(unsigned int value);
   StringStream& operator<<(size_t value);

@@ -11,11 +11,12 @@ template <typename K, typename V, typename H = Hash<K>, typename E = EqualTo<K>>
 class Map {
 public:
   struct Entry {
-    K key;
+    const K key;
     V value;
   };
 
   class Iterator;
+  class ConstIterator;
 
 private:
   using BucketList = List<Entry>;
@@ -25,12 +26,20 @@ private:
   H _hasher{};
   E _equal{};
 
-  size_t bucketIndex(const K& key) const;
-  Iterator findIterator(const K& key);
+  template <typename Q>
+  size_t bucketIndex(const Q& key) const;
+
+  template <typename Q>
+  Iterator findIterator(const Q& key);
+
+  template <typename Q>
+  ConstIterator findIterator(const Q& key) const;
+
   void rehash(size_t newCap);
 
 public:
   Map();
+  explicit Map(H hasher, E equal = E{});
   Map(const Map& o);
   Map(Map&& o) noexcept;
   Map& operator=(Map o);
@@ -44,17 +53,36 @@ public:
     return _size == 0;
   }
 
-  Iterator begin() const;
-  Iterator end() const;
+  Iterator begin();
+  Iterator end();
+  ConstIterator begin() const;
+  ConstIterator end() const;
 
   Iterator find(const K& key);
+  ConstIterator find(const K& key) const;
+
+  template <typename Q>
+  Iterator find(const Q& key);
+
+  template <typename Q>
+  ConstIterator find(const Q& key) const;
+
   bool contains(const K& key) const;
+
+  template <typename Q>
+  bool contains(const Q& key) const;
+
+  void clear();
+  void reserve(size_t expectedEntries);
 
   bool insert(K key, V value);
   V& operator[](const K& key);
 
   Iterator erase(Iterator it);
   bool erase(const K& key);
+
+  template <typename Q>
+  bool erase(const Q& key);
 };
 
 template <typename K, typename V, typename H, typename E>
@@ -94,6 +122,43 @@ public:
   }
 };
 
+template <typename K, typename V, typename H, typename E>
+class Map<K, V, H, E>::ConstIterator {
+  const Map* _map = nullptr;
+  size_t _bucket = 0;
+  typename BucketList::ConstIterator _inner{};
+
+  void advancePastEmpty();
+
+  ConstIterator(const Map* m, size_t b, typename BucketList::ConstIterator it)
+      : _map(m), _bucket(b), _inner(it) {}
+
+  friend class Map;
+
+public:
+  const Entry& operator*() const {
+    return *_inner;
+  }
+
+  const Entry* operator->() const {
+    return &*_inner;
+  }
+
+  ConstIterator& operator++() {
+    ++_inner;
+    advancePastEmpty();
+    return *this;
+  }
+
+  bool operator==(const ConstIterator& o) const {
+    return _map == o._map && _bucket == o._bucket && _inner == o._inner;
+  }
+
+  bool operator!=(const ConstIterator& o) const {
+    return !(*this == o);
+  }
+};
+
 extern template class Map<String, int>;
 extern template class Map<String, String>;
 
@@ -105,4 +170,5 @@ extern template class Map<String, String>;
  * Iterator invalidation:
  * - erase(it) invalidates only it
  * - insert / operator[] may rehash and invalidate all iterators
+ * - reserve invalidates all iterators when it grows the bucket array
  */

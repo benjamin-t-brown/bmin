@@ -1,4 +1,5 @@
 #include "TestHarness.h"
+#include <cstddef>
 
 #ifdef BMIN_TEST_MODULES
 import bmin.containers;
@@ -12,6 +13,14 @@ struct Point {
 
   bool operator==(const Point& o) const {
     return x == o.x && y == o.y;
+  }
+};
+
+template <>
+struct bmin::Hash<Point> {
+  std::size_t operator()(const Point& point) const {
+    return bmin::Hash<int>{}(point.x) ^
+           (bmin::Hash<int>{}(point.y) + 0x9e3779b9u);
   }
 };
 
