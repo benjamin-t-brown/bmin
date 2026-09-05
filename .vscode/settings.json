@@ -114,6 +114,7 @@
   "clangd.checkUpdates": false,
   "clangd.arguments": [
     "--experimental-modules-support",
+    "--query-driver=C:/msys64/ucrt64/bin/clang++.exe,/ucrt64/bin/clang++.exe,/opt/homebrew/opt/llvm/bin/clang++,/usr/local/opt/llvm/bin/clang++,/usr/bin/clang++",
     "--compile-commands-dir=${workspaceFolder}",
     "--background-index",
     "--log=verbose"

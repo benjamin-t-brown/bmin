@@ -84,17 +84,23 @@ Apple Clang. Module-interface compilation explicitly passes `-x c++`.
 **Do not mix** `#include` of bmin headers and `import` of bmin modules for the
 same types in one program — dual-ship means two parallel APIs, not one ODR.
 
-### Editor (Cursor / VS Code) for modules
+### Editor (Cursor / VS Code)
 
-Use **clangd** (not Microsoft C/C++ IntelliSense) with
-`--experimental-modules-support`. Refresh the compilation database after module
-layout changes:
+Use the official **clangd** extension rather than Microsoft C/C++ IntelliSense.
+Generate a compilation database covering the classic library, named modules,
+tests, and both examples:
 
 ```bash
 ./compile-commands-module.sh
 ```
 
-Then restart clangd.
+The script prefers upstream Homebrew LLVM on macOS. Install it with
+`brew install llvm`, then set the editor's machine-local `clangd.path` to
+`$(brew --prefix llvm)/bin/clangd`. The repo enables
+`--experimental-modules-support`; restart clangd after regenerating the database.
+
+Set `CLANGXX=/path/to/clang++` when using another driver, and add that exact
+executable to clangd's `--query-driver` allowlist.
 
 For TextMate highlighting of `import` / `module`, prefer **Minimal C++ Syntax**
 (`daiyousei-qz.minimal-cpp-syntax`) over Better C++ Syntax — the latter often

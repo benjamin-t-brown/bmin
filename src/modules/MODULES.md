@@ -80,7 +80,10 @@ language from that suffix consistently on every platform.
 ./compile-commands-module.sh
 ```
 
-Then restart clangd. Repo settings enable `--experimental-modules-support`.
+The database also covers the classic implementation, tests, and examples. On
+macOS the script prefers Homebrew LLVM; set the editor's machine-local
+`clangd.path` to `$(brew --prefix llvm)/bin/clangd`. Then restart clangd. Repo
+settings enable `--experimental-modules-support`.
 
 For `import` / `module` keyword coloring in Cursor, install **Minimal C++
 Syntax** from a VSIX (not in Cursor’s marketplace) and disable Better C++

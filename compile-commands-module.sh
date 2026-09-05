@@ -1,5 +1,5 @@
 #!/bin/bash
-# Generate / merge compile_commands.json entries for bmin C++ modules (clangd).
+# Generate / merge compile_commands.json entries for both bmin APIs (clangd).
 #
 # Usage:
 #   ./compile-commands-module.sh
@@ -13,20 +13,40 @@ set -euo pipefail
 cd "$(dirname "$0")"
 ROOT="$(pwd)"
 
+if [[ -z "${CLANGXX:-}" && "$(uname -s)" == Darwin ]]; then
+	for candidate in /opt/homebrew/opt/llvm/bin/clang++ /usr/local/opt/llvm/bin/clang++; do
+		if [[ -x "$candidate" ]]; then
+			CLANGXX="$candidate"
+			break
+		fi
+	done
+fi
+
 if [[ -z "${CLANGXX:-}" ]]; then
-	if command -v clang++ >/dev/null 2>&1; then
-		CLANGXX="$(command -v clang++)"
-	elif [[ -x /c/progs/msys2/ucrt64/bin/clang++.exe ]]; then
+	if [[ -x /c/progs/msys2/ucrt64/bin/clang++.exe ]]; then
 		CLANGXX=/c/progs/msys2/ucrt64/bin/clang++.exe
 	elif [[ -x /ucrt64/bin/clang++.exe ]]; then
 		CLANGXX=/ucrt64/bin/clang++.exe
 	elif [[ -x "/c/Program Files/LLVM/bin/clang++.exe" ]]; then
 		CLANGXX="/c/Program Files/LLVM/bin/clang++.exe"
+	elif command -v clang++ >/dev/null 2>&1; then
+		CLANGXX="$(command -v clang++)"
 	else
 		# clangd still parses as Clang; a missing binary only hurts system-include
 		# discovery. Install LLVM/MSYS2 clang or set CLANGXX for best results.
 		CLANGXX=clang++
 		echo "warning: clang++ not found; using 'clang++' as the driver name" >&2
+	fi
+fi
+
+if [[ -z "${PYTHON:-}" || ! -x "${PYTHON}" ]]; then
+	if command -v python >/dev/null 2>&1; then
+		PYTHON=python
+	elif command -v python3 >/dev/null 2>&1; then
+		PYTHON=python3
+	else
+		echo "python not found on PATH" >&2
+		exit 1
 	fi
 fi
 
@@ -37,7 +57,7 @@ else
 	COMPILER="${COMPILER//\\//}"
 fi
 
-python - "$ROOT" "$COMPILER" <<'PY'
+"$PYTHON" - "$ROOT" "$COMPILER" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -45,8 +65,11 @@ from pathlib import Path
 root = Path(sys.argv[1]).resolve()
 compiler = sys.argv[2].replace("\\", "/")
 mod_dir = root / "src" / "modules"
+src_dir = root / "src"
+classic_dir = src_dir / "lib"
 tests_dir = root / "tests"
-example_dir = root / "module_example"
+header_example_dir = root / "example"
+module_example_dirs = [root / "example" / "module_example", root / "example_module"]
 
 # Interface units clangd must see (named modules).
 IFACES = [
@@ -70,16 +93,26 @@ IMPLS = [
     "bmin.string_interop.cpp",
 ]
 
-COMMON = [
+MODULE_FLAGS = [
     "-Wall",
     "-std=c++23",
     "-fPIC",
     f"-I{mod_dir.as_posix()}",
 ]
 
+CLASSIC_FLAGS = [
+    "-Wall",
+    "-std=c++23",
+    "-fPIC",
+    "-iquote",
+    classic_dir.as_posix(),
+    "-iquote",
+    src_dir.as_posix(),
+]
 
-def entry(directory: Path, source: Path, extra_args=None) -> dict:
-    args = [compiler, *COMMON]
+
+def entry(directory: Path, source: Path, flags, extra_args=None) -> dict:
+    args = [compiler, *flags]
     if extra_args:
         args.extend(extra_args)
     # Hint that this is a module / C++ source for clangd.
@@ -95,34 +128,48 @@ def entry(directory: Path, source: Path, extra_args=None) -> dict:
 
 db = []
 
+for src in sorted(classic_dir.rglob("*.cpp")):
+    db.append(entry(src_dir, src, CLASSIC_FLAGS))
+
 for name in IFACES:
     src = mod_dir / name
     if src.is_file():
-        db.append(entry(mod_dir, src))
+        db.append(entry(mod_dir, src, MODULE_FLAGS))
 
 for name in IMPLS:
     src = mod_dir / name
     if src.is_file():
-        db.append(entry(mod_dir, src))
+        db.append(entry(mod_dir, src, MODULE_FLAGS))
 
 smoke = mod_dir / "smoke.cpp"
 if smoke.is_file():
-    db.append(entry(mod_dir, smoke))
+    db.append(entry(mod_dir, smoke, MODULE_FLAGS))
 
-if example_dir.is_dir():
+if header_example_dir.is_dir():
+    main = header_example_dir / "main.cpp"
+    if main.is_file():
+        db.append(entry(header_example_dir, main, CLASSIC_FLAGS))
+
+for example_dir in module_example_dirs:
     main = example_dir / "main.cpp"
     if main.is_file():
-        db.append(entry(example_dir, main))
+        db.append(entry(example_dir, main, MODULE_FLAGS))
 
 if tests_dir.is_dir():
     for src in sorted(tests_dir.glob("test_*.cpp")):
-        # Header-only harness + modules consumers.
-        db.append(entry(tests_dir, src, extra_args=[f"-I{tests_dir.as_posix()}"]))
-    main = tests_dir / "test_main.cpp"
-    if main.is_file():
-        db.append(entry(tests_dir, main, extra_args=[f"-I{tests_dir.as_posix()}"]))
+        db.append(entry(
+            tests_dir,
+            src,
+            MODULE_FLAGS,
+            [f"-I{tests_dir.as_posix()}", "-DBMIN_TEST_MODULES=1"],
+        ))
     for src in sorted((tests_dir / "direct_import").glob("*.cpp")):
-        db.append(entry(tests_dir, src, extra_args=[f"-I{tests_dir.as_posix()}"]))
+        db.append(entry(
+            tests_dir,
+            src,
+            MODULE_FLAGS,
+            [f"-I{tests_dir.as_posix()}"],
+        ))
 
 out = root / "compile_commands.json"
 existing = []
@@ -132,17 +179,17 @@ if out.is_file():
     except json.JSONDecodeError:
         existing = []
 
-# Drop previous entries for the same files, then append module DB.
-module_files = {e["file"].replace("\\", "/") for e in db}
+# Drop previous entries for the same files, then append the refreshed bmin DB.
+bmin_files = {e["file"].replace("\\", "/") for e in db}
 merged = [
     e
     for e in existing
-    if e.get("file", "").replace("\\", "/") not in module_files
+    if e.get("file", "").replace("\\", "/") not in bmin_files
 ]
 merged.extend(db)
 
 out.write_text(json.dumps(merged, indent=1) + "\n", encoding="utf-8")
-print(f"Wrote {out} ({len(merged)} entries, {len(db)} module-related)")
+print(f"Wrote {out} ({len(merged)} entries, {len(db)} bmin-related)")
 print(f"Compiler driver: {compiler}")
 print("Restart clangd after running this (Command Palette: clangd: Restart language server).")
 PY
